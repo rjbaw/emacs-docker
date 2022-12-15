@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Jupyter Code Blocks
+# key: <js
+# --
+
+#+ATTR_LATEX: :options frame=lines, linenos
+#+BEGIN_SRC jupyter-${1:julia/python} :session ${2:sessions} :async yes :exports ${3:both/code/results/none} :tangle ${4:yes/no/FILENAME}
+$0
+#+END_SRC

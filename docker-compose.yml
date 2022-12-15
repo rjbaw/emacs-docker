@@ -1,0 +1,20 @@
+version: "3"
+services:
+  emacs-latex:
+    image: repo/emacs:latest
+    container_name: emacs
+    environment:
+      - DISPLAY=unix$DISPLAY
+      - QT_GRAPHICSSYSTEM=native
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /dev/shm:/dev/shm 
+      - /run/udev/:/run/udev:ro 
+      - /etc/localtime:/etc/localtime:ro 
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw 
+      - $HOME/.Xauthority:/root/.Xauthority:rw
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro 
+      - ~/:/workspace/home 
+    tty: true
+    network_mode: "host"
+    #restart: unless-stopped
