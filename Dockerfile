@@ -32,6 +32,10 @@ RUN apt-get install -y --no-install-recommends \
     texlive-science \
     texlive-latex-extra \
     texlive-plain-generic \
+    texinfo \
+    texlive-xetex \
+    texlive-luatex \
+    tex-gyre \
     imagemagick \
     libjansson-dev \
     libxpm-dev \
@@ -41,12 +45,9 @@ RUN apt-get install -y --no-install-recommends \
     libtiff-dev \
     libx11-dev \
     libncurses5-dev \
-    texinfo \
     libgtk2.0-dev \
     gnutls-dev \
     dvisvgm \
-    texlive-xetex \
-    texlive-luatex \
     automake \
     autoconf \
     xclip \
@@ -66,6 +67,11 @@ RUN apt-get install -y --no-install-recommends \
 
 COPY fonts /tmp/fonts/
 RUN cp /tmp/fonts/* /usr/local/share/fonts/
+RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml
+
+#    git clone git://git.savannah.gnu.org/emacs.git &&
+#    cd emacs && \
+#    git checkout emacs-28 \
 
 RUN cd /tmp && \
     curl https://gnu.mirror.constant.com/emacs/emacs-28.1.tar.gz -so emacs.tar.gz &&\
@@ -100,23 +106,26 @@ RUN cd /usr/local/bin &&\
     ln -s /usr/bin/pip3 pip &&\
     pip install -U pip jupyter numpy matplotlib scipy sympy
 
+# Note change USER_ID=1000 to your own userid
+RUN groupadd -g 1000 docker-user
+RUN useradd -r -m -d /workspace -s /bin/bash -g docker-user -G sudo -u 1000 docker-user
+RUN passwd -d docker-user
+#RUN mkdir -p /workspace
+
+RUN echo "export JULIA_NUM_THREADS=`nproc`" >> /workspace/.bashrc &&\
+    echo "alias em='emacsclient -c -n -a \"\"'" >> /workspace/.bashrc &&\
+    echo "source \"/workspace/.cargo/env\"" >> /workspace/.bashrc
+COPY emacs_config /workspace/.emacs.d
+RUN chown -R docker-user. /workspace
+RUN su docker-user bash -c "echo 'y' | emacs --daemon"
+RUN su docker-user bash -c "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"
+
 RUN apt-get -y autoremove &&\
     apt-get -y autoclean
 RUN rm -rf /var/cache/apt
 RUN rm -r /tmp/*
 
-# Note change USER_ID=1000 to your own userid
-RUN groupadd -g 1000 home_user
-RUN useradd -r -m -d /workspace -s /bin/bash -g home_user -G sudo -u 1000 home_user
-RUN passwd -d home_user
-
-RUN echo "export JULIA_NUM_THREADS=`nproc`" >> /workspace/.bashrc &&\
-    echo "alias em='emacsclient -c -n -a \"\"'" >> /workspace/.bashrc
-COPY emacs_config /workspace/.emacs.d
-RUN chown -R home_user. /workspace
-RUN su home_user bash -c "echo 'y' | emacs --daemon"
-
-USER home_user
+USER docker-user
 WORKDIR /workspace
 
 RUN ["/bin/bash"]

@@ -62,6 +62,7 @@
 	     :config
 	     (evil-collection-init)
 	     :ensure t)
+
 (use-package org
 	     :ensure t)
 (setq org-confirm-babel-evaluate nil)
@@ -69,22 +70,54 @@
 (setq org-hide-emphasis-markers t)
 (setq org-adapt-indentation nil)
 ;(setq org-export-babel-evaluate nil)
-(when (version<= "9.2" (org-version))
-  (require 'org-tempo))
-;(add-to-list 'org-latex-packages-alist '("" "tcolorbox" t))
+; imagemagick, dvipng, dvisvgm
+(setq org-preview-latex-default-process 'imagemagick)
+(setq org-latex-inputenc-alist '(("utf8")))
+(setq org-latex-minted-options '(("breaklines" "true")
+                                 ("breakanywhere" "true")))
+(setq org-latex-listings 'minted)
+(setq org-latex-packages-alist '(("" "minted"))) ;unicode-math
+; Backends: pdflatex, xelatex, lualatex
+(setq org-latex-pdf-process
+      '("lualatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "lualatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "lualatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 (font-lock-add-keywords 'org-mode
                         '(("^ *\\([-]\\) "
                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+(setq org-preview-latex-process-alist
+       '((dvipng :programs
+         ("lualatex" "dvipng")
+         :description "dvi > png" :message "you need to install the programs: latex and dvipng." :image-input-type "dvi" :image-output-type "png" :image-size-adjust
+         (1.0 . 1.0)
+         :latex-compiler
+         ("lualatex -output-format dvi -interaction nonstopmode -output-directory %o %f")
+         :image-converter
+         ("dvipng -fg %F -bg %B -D %D -T tight -o %O %f"))
+       (dvisvgm :programs
+          ("lualatex" "dvisvgm")
+          :description "dvi > svg" :message "you need to install the programs: latex and dvisvgm." :use-xcolor t :image-input-type "xdv" :image-output-type "svg" :image-size-adjust
+          (3 . 1.5)
+          :latex-compiler
+          ("lualatex -no-pdf -interaction nonstopmode -output-directory %o %f")
+          :image-converter
+          ("dvisvgm %f -n -b min -c %S -o %O"))
+       (imagemagick :programs
+              ("lualatex" "convert")
+              :description "pdf > png" :message "you need to install the programs: latex and imagemagick." :use-xcolor t :image-input-type "pdf" :image-output-type "png" :image-size-adjust
+              (1.0 . 1.0)
+              :latex-compiler
+              ("lualatex -no-pdf -interaction nonstopmode -output-directory %o %f")
+              :image-converter
+              ("convert -density %D -trim -antialias %f -quality 100 %O"))))
 (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
 (add-hook 'org-mode-hook 'org-display-inline-images)
 (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
 (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
 
-;(setq org-latex-create-formula-image-program 'dvisvgm)
-(setq org-preview-latex-default-process 'dvipng)
-(setq org-latex-inputenc-alist '(("utf8" . "utf8x")))
+(when (version<= "9.2" (org-version))
+  (require 'org-tempo))
 (use-package org-ref)
-;(setq org-latex-create-formula-image-program 'imagemagick)
 (use-package org-bullets
   :config
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
@@ -210,16 +243,6 @@
   :hook (python-mode . (lambda ()
                           (require 'lsp-pyright)
                           (lsp))))
-
-; Backends: pdflatex, xelatex, lualatex
-(setq org-latex-listings 'minted
-      org-latex-packages-alist '(("" "minted" "unicode-math"))
-      org-latex-pdf-process
-      '("lualatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "lualatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "lualatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
-(setq org-latex-minted-options '(("breaklines" "true")
-                                 ("breakanywhere" "true")))
 
 ; Code from John Kitchin
 ; https://kitchingroup.cheme.cmu.edu/blog/category/emacs/

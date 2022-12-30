@@ -1,8 +1,8 @@
 version: "3"
 services:
   emacs-latex:
-    image: repo/emacs:latest
-    container_name: emacs
+    image: repo/emacs-latex:latest
+    container_name: emacs-latex
     environment:
       - DISPLAY=unix$DISPLAY
       - QT_GRAPHICSSYSTEM=native

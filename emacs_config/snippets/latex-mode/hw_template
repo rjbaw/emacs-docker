@@ -7,14 +7,18 @@
 #+SUBTITLE: ${2:Course Code}
 #+AUTHOR: ${3:Name}
 #+LATEX_CLASS: article
-#+LATEX_HEADER: \usemintedstyle{colorful} 
-#+LATEX_HEADER: \usepackage{mathrsfs}
-#+LATEX_HEADER: \usepackage{gensymb}
-#+LATEX_HEADER: \usepackage{unicode-math}
 #+LATEX_HEADER: \usepackage[a4paper, total={6in, 8in}]{geometry}
-#+LATEX_HEADER: \usepackage[utf8x]{inputenc}
+#+LATEX_HEADER: \usepackage{cmap}
+#+LATEX_HEADER: \usepackage{mathrsfs}
+#+LATEX_HEADER: \usepackage{xcolor}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{gensymb}
+#+LATEX_HEADER: \usepackage{cancel}
+#+LATEX_HEADER: \usepackage{unicode-math}
+#+LATEX_HEADER: \setmainfont{TeX Gyre Termes}
+#+LATEX_HEADER: \setmonofont{DejaVu Sans Mono}
+#+LATEX_HEADER: \usemintedstyle{colorful} 
 #+LATEX_HEADER: \setcounter{MaxMatrixCols}{20}
-#+LATEX_COMPILER: lualatex
 #+PROPERTY: header-args :cache yes
 #+OPTIONS: ${4:toc:nil \n:t date:nil}
 #+STARTUP: latexpreview

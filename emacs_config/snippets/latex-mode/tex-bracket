@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: tex bracket
+# key: (
+# --
+\\($1\\)$0
