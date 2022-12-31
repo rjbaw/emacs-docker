@@ -76,7 +76,8 @@
 (setq org-latex-minted-options '(("breaklines" "true")
                                  ("breakanywhere" "true")))
 (setq org-latex-listings 'minted)
-(setq org-latex-packages-alist '(("" "minted"))) ;unicode-math
+(setq org-latex-packages-alist '(("" "minted" t)
+                                 ("" "tcolorbox" t))) ;unicode-math
 ; Backends: pdflatex, xelatex, lualatex
 (setq org-latex-pdf-process
       '("lualatex -shell-escape -interaction nonstopmode -output-directory %o %f"
@@ -181,6 +182,13 @@
   :config
   (require 'spaceline-config)
   (spaceline-spacemacs-theme))
+(use-package smartparens
+	    :config (smartparens-global-mode t))
+;(electric-pair-mode t)
+(use-package highlight-indent-guides
+  :config
+  (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+  (setq highlight-indent-guides-method 'character))
 (use-package jupyter)
 (use-package ess)
 (use-package julia-mode)

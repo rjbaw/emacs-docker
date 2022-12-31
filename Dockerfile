@@ -35,7 +35,6 @@ RUN apt-get install -y --no-install-recommends \
     texinfo \
     texlive-xetex \
     texlive-luatex \
-    tex-gyre \
     imagemagick \
     libjansson-dev \
     libxpm-dev \
@@ -88,7 +87,7 @@ RUN cd /tmp && \
     --with-rsvg \
     --with-xwidgets \
     --with-harfbuzz \
-    CFLAGS='-O2 -march=native' \
+    CFLAGS='-O3 -march=native' \
     make -j $(nproc) &&\
     checkinstall
 
