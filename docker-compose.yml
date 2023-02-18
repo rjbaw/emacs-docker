@@ -1,8 +1,11 @@
 version: "3"
 services:
   emacs-latex:
-    image: repo/emacs-latex:latest
+    image: rjbaw/emacs-latex:latest
     container_name: emacs-latex
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
       - DISPLAY=unix$DISPLAY
       - QT_GRAPHICSSYSTEM=native

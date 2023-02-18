@@ -1,0 +1,247 @@
+#+TITLE: Homework 14
+#+LATEX_CLASS: article
+#+LATEX_HEADER: \usemintedstyle{colorful} 
+#+OPTIONS: toc:nil \n:t date:nil
+#+STARTUP: latexpreview
+
+* Question 1
+#+ATTR_LATEX: :options frame=lines, linenos
+#+BEGIN_SRC jupyter-julia :session jl :async yes :exports code
+using LinearAlgebra, Latexify
+
+M = [1/9 2/10 1/7 1/5 2/9;
+     2/9 1/10 1/7 1/5 1/9;
+     1/9 3/10 2/7 1/5 1/9;
+     3/9 3/10 1/7 1/5 1/9;
+     2/9 1/10 2/7 1/5 4/9]
+latexify(round.(M, digits=3))
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\begin{equation}
+\left[
+\begin{array}{ccccc}
+0.111 & 0.2 & 0.143 & 0.2 & 0.222 \\
+0.222 & 0.1 & 0.143 & 0.2 & 0.111 \\
+0.111 & 0.3 & 0.286 & 0.2 & 0.111 \\
+0.333 & 0.3 & 0.143 & 0.2 & 0.111 \\
+0.222 & 0.1 & 0.286 & 0.2 & 0.444 \\
+\end{array}
+\right]
+\end{equation}
+#+END_EXPORT
+  
+** Part A
+*Determine the steady state vector associated with \(M\)*
+
+#+ATTR_LATEX: :options frame=lines, linenos
+#+BEGIN_SRC jupyter-julia :session jl :async yes :exports code
+eigenvalue = Diagonal(eigvals(M))
+eigenvector = eigvecs(M)
+eigenvalue[1:4,1:4] .= 0
+stochastic_vector = real(eigenvector*eigenvalue*inv(eigenvector))
+display(latexify(round.(stochastic_vector, digits=4)))
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\begin{equation}
+\left[
+\begin{array}{ccccc}
+0.1792 & 0.1792 & 0.1792 & 0.1792 & 0.1792 \\
+0.1535 & 0.1535 & 0.1535 & 0.1535 & 0.1535 \\
+0.1917 & 0.1917 & 0.1917 & 0.1917 & 0.1917 \\
+0.2042 & 0.2042 & 0.2042 & 0.2042 & 0.2042 \\
+0.2714 & 0.2714 & 0.2714 & 0.2714 & 0.2714 \\
+\end{array}
+\right]
+\end{equation}
+#+END_EXPORT
+
+** Part B
+*Approximate the steady state vector with a computer by taking powers of \(M\)*
+
+#+ATTR_LATEX: :options frame=lines, linenos
+#+BEGIN_SRC jupyter-julia :session jl :async yes :exports code
+latexify(round.(M^2,digits=4))
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\begin{equation}
+\left[
+\begin{array}{ccccc}
+0.1887 & 0.1673 & 0.1773 & 0.1752 & 0.1838 \\
+0.1541 & 0.1684 & 0.1472 & 0.1552 & 0.148 \\
+0.2021 & 0.209 & 0.2007 & 0.2016 & 0.1614 \\
+0.2109 & 0.2106 & 0.1916 & 0.2175 & 0.1949 \\
+0.2441 & 0.2446 & 0.2832 & 0.2505 & 0.312 \\
+\end{array}
+\right]
+\end{equation}
+#+END_EXPORT
+
+#+ATTR_LATEX: :options frame=lines, linenos
+#+BEGIN_SRC jupyter-julia :session jl :async yes :exports code
+latexify(round.(M^5,digits=4))
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\begin{equation}
+\left[
+\begin{array}{ccccc}
+0.1791 & 0.1791 & 0.1792 & 0.1791 & 0.1792 \\
+0.1536 & 0.1535 & 0.1535 & 0.1536 & 0.1535 \\
+0.192 & 0.192 & 0.1916 & 0.1919 & 0.1914 \\
+0.2042 & 0.2042 & 0.2041 & 0.2042 & 0.2042 \\
+0.2711 & 0.2712 & 0.2716 & 0.2712 & 0.2717 \\
+\end{array}
+\right]
+\end{equation}
+#+END_EXPORT
+
+#+ATTR_LATEX: :options frame=lines, linenos
+#+BEGIN_SRC jupyter-julia :session jl :async yes :exports code
+latexify(round.(M^10,digits=4))
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\begin{equation}
+\left[
+\begin{array}{ccccc}
+0.1792 & 0.1792 & 0.1792 & 0.1792 & 0.1792 \\
+0.1535 & 0.1535 & 0.1535 & 0.1535 & 0.1535 \\
+0.1917 & 0.1917 & 0.1917 & 0.1917 & 0.1917 \\
+0.2042 & 0.2042 & 0.2042 & 0.2042 & 0.2042 \\
+0.2714 & 0.2714 & 0.2714 & 0.2714 & 0.2714 \\
+\end{array}
+\right]
+\end{equation}
+#+END_EXPORT
+
+* Question 2
+
+Let \(M\) and \(N\) be \(2 \times 2\) stochastic matrices
+
+** Part A
+Show \(MN\) is stochastic
+
+Let 
+\[M = \begin{bmatrix}
+a_{11} & a_{12} \\
+a_{21} & a_{22} \end{bmatrix}, \ N = \begin{bmatrix}
+b_{11} & b_{12} \\
+b_{21} & b_{22} \end{bmatrix} \]
+then
+\[ MN = \begin{bmatrix}
+a_{11}b_{11} + a_{12}b_{21}  & a_{11} b_{12} + a_{12} b_{22} \\
+a_{21}b_{11} + a_{22}b_{21}  & a_{21} b_{12} + a_{22} b_{22} \end{bmatrix} \]
+
+A matrix is stochastic if and only if \(\sum_{i=1}^{n} a_{ij} = 1\), \(0\leq a_{ij} \leq 1\)
+Each element in \(MN\) is also bounded by \(0 \leq a_{ij} \leq 1\), since each column \(i\) of stochastic matrix \(MN\) is a convex combination of the form \((a_{11}  + a_{21} )b_{1i}+ (a_{12}+ a_{22} )b_{2i}\). Therefore, they form a convex set where the coefficients has the following restriction: \(\sum a_i = 1\) and \(a_i \geq 0\).
+
+** Part B
+Show \(pM + (1-p)N\) is stochastic for any \(p \in (0,1) \)
+
+\[p \begin{bmatrix}
+a_{11} & a_{12} \\
+a_{21} & a_{22} \end{bmatrix}+ (1-p) \begin{bmatrix}
+b_{11} & b_{12} \\
+b_{21} & b_{22} \end{bmatrix} \]
+\[= \begin{bmatrix}
+pa_{11} + (1-p)b_{11} & pa_{12} + (1-p)b_{12} \\
+pa_{21} + (1-p)b_{21} &  pa_{22} + (1-p)b_{22}  \end{bmatrix}\]
+The equation \(pM + (1-p)N\) is just a convex combination of the matrices \(M\) and \(N\), thus the previous results holds.
+
+* Question 3
+
+    [[file:Question_3/2022-01-02_00-51-05_screenshot.png]]
+    
+** Part A
+Write down the 6 \times 6 stochastic matrix \(M\) corresponding to this internet
+#+ATTR_LATEX: :options frame=lines, linenos
+#+BEGIN_SRC jupyter-julia :session jl :async yes :exports code
+using LinearAlgebra, Latexify
+
+M = [0.0 0.0 0.0 0.0 1.0 0.0;
+     1/3 0.0 1/3 0.0 0.0 0.0;
+     1/3 1/2 0.0 1.0 0.0 1.0;
+     1/3 0.0 0.0 0.0 0.0 0.0;
+     0.0 1/2 1/3 0.0 0.0 0.0;
+     0.0 0.0 1/3 0.0 0.0 0.0]
+latexify(round.(M, digits=3))
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\begin{equation}
+\left[
+\begin{array}{cccccc}
+0.0 & 0.0 & 0.0 & 0.0 & 1.0 & 0.0 \\
+0.333 & 0.0 & 0.333 & 0.0 & 0.0 & 0.0 \\
+0.333 & 0.5 & 0.0 & 1.0 & 0.0 & 1.0 \\
+0.333 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 \\
+0.0 & 0.5 & 0.333 & 0.0 & 0.0 & 0.0 \\
+0.0 & 0.0 & 0.333 & 0.0 & 0.0 & 0.0 \\
+\end{array}
+\right]
+\end{equation}
+#+END_EXPORT
+
+** Part B
+Determine the associated Google matrix \(M_{\text{google}}\) with \(p=0.15\)
+#+ATTR_LATEX: :options frame=lines, linenos
+#+BEGIN_SRC jupyter-julia :session jl :async yes :exports code
+N = fill(1/6, (6,6))
+p = 0.15
+M_google = M * (1-p) + N * p
+latexify(round.(M_google, digits=3))
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\begin{equation}
+\left[
+\begin{array}{cccccc}
+0.025 & 0.025 & 0.025 & 0.025 & 0.875 & 0.025 \\
+0.308 & 0.025 & 0.308 & 0.025 & 0.025 & 0.025 \\
+0.308 & 0.45 & 0.025 & 0.875 & 0.025 & 0.875 \\
+0.308 & 0.025 & 0.025 & 0.025 & 0.025 & 0.025 \\
+0.025 & 0.45 & 0.308 & 0.025 & 0.025 & 0.025 \\
+0.025 & 0.025 & 0.308 & 0.025 & 0.025 & 0.025 \\
+\end{array}
+\right]
+\end{equation}
+#+END_EXPORT
+
+** Part C
+Determine the Google-rank of the six pages
+
+#+ATTR_LATEX: :options frame=lines, linenos
+#+BEGIN_SRC jupyter-julia :session jl :async yes :exports code
+eigenvalue = Diagonal(eigvals(M_google))
+eigenvector = eigvecs(M_google)
+eigenvalue[1:5,1:5] .= 0
+stochastic_vector = real(eigenvector*eigenvalue*inv(eigenvector))
+display(latexify(round.(stochastic_vector, digits=4)))
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\begin{equation}
+\left[
+\begin{array}{cccccc}
+0.1764 & 0.1764 & 0.1764 & 0.1764 & 0.1764 & 0.1764 \\
+0.1601 & 0.1601 & 0.1601 & 0.1601 & 0.1601 & 0.1601 \\
+0.3003 & 0.3003 & 0.3003 & 0.3003 & 0.3003 & 0.3003 \\
+0.075 & 0.075 & 0.075 & 0.075 & 0.075 & 0.075 \\
+0.1781 & 0.1781 & 0.1781 & 0.1781 & 0.1781 & 0.1781 \\
+0.1101 & 0.1101 & 0.1101 & 0.1101 & 0.1101 & 0.1101 \\
+\end{array}
+\right]
+\end{equation}
+#+END_EXPORT
+Hence the page is ranked as 3, 5, 1, 2, 6, 4 in descending order.

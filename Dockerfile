@@ -1,8 +1,13 @@
+# Note change this to your preference
 ARG UBUNTU_VERSION=22.04
-FROM amd64/ubuntu:${UBUNTU_VERSION}
+FROM ubuntu:${UBUNTU_VERSION}
 
 LABEL maintainer="rjbaw"
 ENV DEBIAN_FRONTEND=noninteractive 
+ENV DUSER=docker-user
+ENV DGROUP=docker-user
+ENV DGID=1000
+ENV DUID=1000
 
 RUN apt-get update && apt-get dist-upgrade -y 
 RUN apt-get install -y --no-install-recommends \
@@ -103,28 +108,28 @@ RUN cd /tmp &&\
 RUN cd /usr/local/bin &&\
     ln -s /usr/bin/python3 python &&\
     ln -s /usr/bin/pip3 pip &&\
-    pip install -U pip jupyter numpy matplotlib scipy sympy
+    pip install -U pip jupyter numpy matplotlib scipy sympy cvxpy
 
-# Note change USER_ID=1000 to your own userid
-RUN groupadd -g 1000 docker-user
-RUN useradd -r -m -d /workspace -s /bin/bash -g docker-user -G sudo -u 1000 docker-user
-RUN passwd -d docker-user
-#RUN mkdir -p /workspace
+RUN groupadd -g $DGID $DGROUP
+RUN useradd -r -m -d /workspace -s /bin/bash -g $DGID -G sudo -u $DUID $DUSER
+RUN passwd -d $DUSER
 
 RUN echo "export JULIA_NUM_THREADS=`nproc`" >> /workspace/.bashrc &&\
+    echo "export TERM=xterm-256color" >> /workspace/.bashrc &&\
     echo "alias em='emacsclient -c -n -a \"\"'" >> /workspace/.bashrc &&\
+    echo "alias et='emacsclient -t -nw -a \"\"'" >> /workspace/.bashrc &&\
     echo "source \"/workspace/.cargo/env\"" >> /workspace/.bashrc
 COPY emacs_config /workspace/.emacs.d
-RUN chown -R docker-user. /workspace
-RUN su docker-user bash -c "echo 'y' | emacs --daemon"
-RUN su docker-user bash -c "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"
+RUN chown -R $DUSER. /workspace
 
 RUN apt-get -y autoremove &&\
     apt-get -y autoclean
 RUN rm -rf /var/cache/apt
 RUN rm -r /tmp/*
 
-USER docker-user
+USER $DUSER
+RUN echo 'y' | emacs --daemon
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 WORKDIR /workspace
 
 RUN ["/bin/bash"]

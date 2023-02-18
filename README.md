@@ -22,13 +22,23 @@ Opinionated Emacs with orgmode, latex, and batteries included features in Docker
 
 ### Setup
 ```
-docker build . -t repo/emacs-latex
 docker-compose up -d
-docker exec -it emacs-latex bash
-em
 ```
 
-### General Use
+### General Usage
+#### New Session
+```
+docker exec -it emacs-latex bash
+```
+##### GUI mode
+```
+em
+```
+##### Terminal mode
+```
+et
+```
+
 #### Evil-mode
 If you do know Vim keybindings, learn them or add `(evil-mode 0)` to your init.el
 #### Snippets
