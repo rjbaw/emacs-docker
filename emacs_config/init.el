@@ -13,8 +13,6 @@
 (setq custom-file "~/.emacs.d/custom-file.el")
 ;(load-file custom-file)
 
-(define-key key-translation-map (kbd "ESC") (kbd "<escape>"))
-
 (setq exec-path (append exec-path '("/usr/bin")))
 
 (require 'package)
@@ -51,12 +49,18 @@
 		       :fetcher github
 		       :repo "Malabarba/spinner.el"))
 (use-package undo-fu)
+(use-package key-chord
+             :config
+             (key-chord-define evil-insert-state-map "yy" 'evil-normal-state)
+	     :hook (evil-mode . key-chord-mode)
+             :ensure t)
 (use-package evil
 	     :ensure t
 	     :init
              (setq evil-undo-system 'undo-fu)
              (setq evil-want-integration t)
              (setq evil-want-keybinding nil)
+	     (setq evil-esc-delay 0)
              :config
 	     (evil-mode t))
 (use-package evil-collection

@@ -78,7 +78,7 @@ RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xm
 #    git checkout emacs-28 \
 
 RUN cd /tmp && \
-    curl https://gnu.mirror.constant.com/emacs/emacs-28.1.tar.gz -so emacs.tar.gz &&\
+    curl https://gnu.mirror.constant.com/emacs/emacs-28.2.tar.gz -so emacs.tar.gz &&\
     tar xf emacs.tar.gz &&\
     cd emacs* \
     ./configure \
