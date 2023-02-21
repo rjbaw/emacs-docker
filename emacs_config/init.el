@@ -13,6 +13,8 @@
 (setq custom-file "~/.emacs.d/custom-file.el")
 ;(load-file custom-file)
 
+(define-key key-translation-map (kbd "ESC") (kbd "<escape>"))
+
 (setq exec-path (append exec-path '("/usr/bin")))
 
 (require 'package)
