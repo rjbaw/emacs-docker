@@ -18,6 +18,8 @@ RUN apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
     python3-dev \
+    python3-tk \
+    python3-venv \
     python3-setuptools \
     python3-wheel \
     sudo \
@@ -67,6 +69,7 @@ RUN apt-get install -y --no-install-recommends \
     libglade2-dev \
     nodejs \
     npm \
+    bash-completion \
     jupyter
 
 COPY fonts /tmp/fonts/
@@ -100,24 +103,28 @@ RUN cd /tmp &&\
     curl https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.1-linux-x86_64.tar.gz -so julia.tar.gz &&\
     tar xf julia.tar.gz &&\
     cd julia* &&\
-    cp -r * /usr/ &&\
-    julia -e 'import Pkg; Pkg.add("IJulia")'
+    cp -r * /usr/ 
 
 #    --with-x-toolkit=gtk3 \
 
 RUN cd /usr/local/bin &&\
     ln -s /usr/bin/python3 python &&\
     ln -s /usr/bin/pip3 pip &&\
+    python3 -m venv /opt/emacs &&\                                             
+    chmod +x /opt/emacs/bin/activate  &&\                                      
+    . /opt/emacs/bin/activate &&\  
     pip install -U pip jupyter numpy matplotlib scipy sympy cvxpy
 
-RUN groupadd -g $DGID $DGROUP
-RUN useradd -r -m -d /workspace -s /bin/bash -g $DGID -G sudo -u $DUID $DUSER
+RUN userdel `id -nu $DUID` || true
+RUN groupadd -g $DGID $DGROUP;
+RUN useradd -r -m -d /workspace -s /bin/bash -g $DGID -G sudo -u $DUID $DUSER;
 RUN passwd -d $DUSER
 
 RUN echo "export JULIA_NUM_THREADS=`nproc`" >> /workspace/.bashrc &&\
     echo "export TERM=xterm-256color" >> /workspace/.bashrc &&\
     echo "alias em='emacsclient -c -n -a \"\"'" >> /workspace/.bashrc &&\
     echo "alias et='emacsclient -t -nw -a \"\"'" >> /workspace/.bashrc &&\
+    echo "source \"/opt/emacs/bin/activate\"" >> /workspace/.bashrc &&\
     echo "source \"/workspace/.cargo/env\"" >> /workspace/.bashrc
 COPY emacs_config /workspace/.emacs.d
 RUN chown -R $DUSER. /workspace
@@ -128,8 +135,9 @@ RUN rm -rf /var/cache/apt
 RUN rm -r /tmp/*
 
 USER $DUSER
-RUN echo 'y' | emacs --daemon
+RUN echo 'y' | emacs --daemon | cat
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN julia -e 'import Pkg; Pkg.add("IJulia")'
 WORKDIR /workspace
 
 RUN ["/bin/bash"]
