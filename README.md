@@ -16,7 +16,7 @@ Opinionated Emacs with orgmode, latex, and batteries included features in Docker
 
 ## Getting Started
 ### Requirements
-- Linux  
+- x86-64  
 - Docker https://docs.docker.com/engine/install/  
 - Docker Compose https://docs.docker.com/compose/install/  
 
@@ -24,6 +24,11 @@ Opinionated Emacs with orgmode, latex, and batteries included features in Docker
 ```
 docker-compose up -d
 ```
+
+### Notes
+
+- Not supported in arm64 due to missing IJulia and other issues
+- Console mode is not recommended due to missing features.
 
 ### General Usage
 #### New Session

@@ -49,6 +49,7 @@
 		       :fetcher github
 		       :repo "Malabarba/spinner.el"))
 (use-package undo-fu)
+(use-package vterm)
 (use-package key-chord
              :config
              (key-chord-define evil-insert-state-map "yy" 'evil-normal-state)

@@ -51,7 +51,11 @@ RUN apt-get install -y --no-install-recommends \
     libtiff-dev \
     libx11-dev \
     libncurses5-dev \
-    libgtk2.0-dev \
+#    libgtk2.0-dev \
+    libgtk-4-dev \
+#    libwebkit2gtk-4.0-dev \
+    libwebkit2gtk-4.0-dev \
+    libvterm-dev \
     gnutls-dev \
     dvisvgm \
     automake \
@@ -88,7 +92,7 @@ RUN cd /tmp && \
     -C \
     --with-cairo \
     --with-modules \
-    --with-x-toolkit=lucid \
+    --with-x-toolkit=gtk4 \
     --with-native-compilation \
     --with-image-magick \
     --with-json \
@@ -135,7 +139,7 @@ RUN rm -rf /var/cache/apt
 RUN rm -r /tmp/*
 
 USER $DUSER
-RUN echo 'y' | emacs --daemon | cat
+RUN echo 'y\ny' | emacs --daemon | cat
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN julia -e 'import Pkg; Pkg.add("IJulia")'
 WORKDIR /workspace
