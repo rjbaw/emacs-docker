@@ -73,6 +73,7 @@ RUN apt-get install -y --no-install-recommends \
     libglade2-dev \
     nodejs \
     npm \
+    fzf \
     bash-completion \
     jupyter
 
@@ -123,6 +124,7 @@ RUN userdel `id -nu $DUID` || true
 RUN groupadd -g $DGID $DGROUP;
 RUN useradd -r -m -d /workspace -s /bin/bash -g $DGID -G sudo -u $DUID $DUSER;
 RUN passwd -d $DUSER
+RUN chown -R $DUSER:$DGROUP /opt/emacs/
 
 RUN echo "export JULIA_NUM_THREADS=`nproc`" >> /workspace/.bashrc &&\
     echo "export TERM=xterm-256color" >> /workspace/.bashrc &&\
@@ -139,8 +141,9 @@ RUN rm -rf /var/cache/apt
 RUN rm -r /tmp/*
 
 USER $DUSER
-RUN echo 'y\ny' | emacs --daemon | cat
+RUN echo 'y\ny\ny' | emacs --daemon | cat
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN . /workspace/.cargo/env && rustup component add rls
 RUN julia -e 'import Pkg; Pkg.add("IJulia")'
 WORKDIR /workspace
 
