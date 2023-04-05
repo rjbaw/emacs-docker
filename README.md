@@ -2,7 +2,7 @@
 Opinionated Emacs with orgmode, latex, and batteries included features in Docker Compose.
 
 ## Core Components
-- Emacs 28.1 with Luid GUI  
+- Emacs 28.2 with Luid GUI  
 - PDFLatex, XeLaTeX, LuaLaTeX.  
 - Python 3, Julia, Jupyter Notebook  
 
@@ -16,24 +16,23 @@ Opinionated Emacs with orgmode, latex, and batteries included features in Docker
 
 ## Getting Started
 ### Requirements
-- x86-64  
 - Docker https://docs.docker.com/engine/install/  
 - Docker Compose https://docs.docker.com/compose/install/  
 
-### Setup
+### Building
 ```
-docker-compose up -d
+./run.sh -b
 ```
 
 ### Notes
 
-- Not supported in arm64 due to missing IJulia and other issues
+- IJulia has a missing arm64 build.
 - Console mode is not recommended due to missing features.
 
 ### General Usage
-#### New Session
+#### Entry Point
 ```
-docker exec -it emacs-latex bash
+./run.sh
 ```
 ##### GUI mode
 ```
@@ -45,12 +44,11 @@ et
 ```
 
 #### Evil-mode
-If you do know Vim keybindings, learn them or add `(evil-mode 0)` to your init.el
+This mode requires the knowledge of Vim key bindings.  
+(Not recommended) Deactivate temporarily by running M-x evil-mode twice or add `(evil-mode 0)` to ~/.emacs.d/init.el
 #### Snippets
 Included `yasnippet-snippets` and few more in `snippets/` folder.  
 #### Code Blocks
 Jupyter Code Blocks: `<js` & `TAB`  
 Code execution: C-C  
 Code Interupt: C-TAB or C-g  
-
-

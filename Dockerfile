@@ -1,13 +1,20 @@
-# Note change this to your preference
 ARG UBUNTU_VERSION=22.04
 FROM ubuntu:${UBUNTU_VERSION}
 
 LABEL maintainer="rjbaw"
 ENV DEBIAN_FRONTEND=noninteractive 
-ENV DUSER=docker-user
-ENV DGROUP=docker-user
-ENV DGID=1000
-ENV DUID=1000
+
+ARG DUSER
+ARG DGROUP
+ARG DGID
+ARG DUID
+ARG ARCHTYPE
+
+ENV DUID=$DUID
+ENV DUSER=$DUSER
+ENV DGID=$DGID
+ENV DGROUP=$DGROUP
+ENV ARCHTYPE=$ARCHTYPE
 
 RUN apt-get update && apt-get dist-upgrade -y 
 RUN apt-get install -y --no-install-recommends \
@@ -144,7 +151,7 @@ USER $DUSER
 RUN echo 'y\ny\ny' | emacs --daemon | cat
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN . /workspace/.cargo/env && rustup component add rls
-RUN julia -e 'import Pkg; Pkg.add("IJulia")'
+RUN if [ $ARCHTYPE="x86_64"* ]; then julia -e 'import Pkg; Pkg.add("IJulia")'; fi
 WORKDIR /workspace
 
 RUN ["/bin/bash"]

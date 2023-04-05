@@ -6,8 +6,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - DUID=$DUID
+        - DGID=$DGID
+        - DUSER=$DUSER
+        - DGROUP=$DGROUP
+        - ARCHTYPE=$ARCHTYPE
     environment:
-      - DISPLAY=unix$DISPLAY
+      - DISPLAY=$DISPLAY
       - QT_GRAPHICSSYSTEM=native
       - QT_X11_NO_MITSHM=1
     volumes:
