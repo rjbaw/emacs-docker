@@ -67,6 +67,7 @@ RUN apt-get install -y --no-install-recommends \
     dvisvgm \
     automake \
     autoconf \
+    libtool \
     xclip \
     scrot \
     xournalpp \
@@ -107,6 +108,7 @@ RUN cd /tmp && \
     --with-rsvg \
     --with-xwidgets \
     --with-harfbuzz \
+    --with-modules CC=clang \
     CFLAGS='-O3 -march=native' \
     make -j $(nproc) &&\
     checkinstall
@@ -128,10 +130,10 @@ RUN cd /usr/local/bin &&\
     pip install -U pip jupyter numpy matplotlib scipy sympy cvxpy
 
 RUN userdel `id -nu $DUID` || true
-RUN groupadd -g $DGID $DGROUP;
+RUN groupadd -g $DGID $DGROUP || true;
 RUN useradd -r -m -d /workspace -s /bin/bash -g $DGID -G sudo -u $DUID $DUSER;
 RUN passwd -d $DUSER
-RUN chown -R $DUSER:$DGROUP /opt/emacs/
+RUN chown -R $DUID:$DGID /opt/emacs/
 
 RUN echo "export JULIA_NUM_THREADS=`nproc`" >> /workspace/.bashrc &&\
     echo "export TERM=xterm-256color" >> /workspace/.bashrc &&\
@@ -149,9 +151,15 @@ RUN rm -r /tmp/*
 
 USER $DUSER
 RUN echo 'y\ny\ny' | emacs --daemon | cat
+RUN if [[ "ARCHTYPE"=="aarch64" ]]; then \
+    cd /workspace/.emacs.d/elpa/zmq*/src/ && \
+    ./configure && \
+    make -j $(nproc) && \ 
+    cd ../ && \
+    make -j $(nproc); fi
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN . /workspace/.cargo/env && rustup component add rls
-RUN if [ $ARCHTYPE="x86_64"* ]; then julia -e 'import Pkg; Pkg.add("IJulia")'; fi
+RUN if [[ "$ARCHTYPE"=="x86_64" ]]; then julia -e 'import Pkg; Pkg.add("IJulia")'; fi
 WORKDIR /workspace
 
 RUN ["/bin/bash"]

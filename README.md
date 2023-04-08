@@ -2,7 +2,7 @@
 Opinionated Emacs with orgmode, latex, and batteries included features in Docker Compose.
 
 ## Core Components
-- Emacs 28.2 with Luid GUI  
+- Emacs 28.2 with Gtk GUI  
 - PDFLatex, XeLaTeX, LuaLaTeX.  
 - Python 3, Julia, Jupyter Notebook  
 
