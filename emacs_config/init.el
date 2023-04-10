@@ -11,6 +11,7 @@
 
 (setq default-frame-alist '((font . "DM Mono")))
 (setq custom-file "~/.emacs.d/custom-file.el")
+(setq native-comp-async-report-warnings-errors nil)
 ;(load-file custom-file)
 
 (setq exec-path (append exec-path '("/usr/bin")))

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -a
+set -ae
 
 ARCHTYPE=$(uname -m)
 DUSER=docker-user

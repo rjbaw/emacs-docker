@@ -46,9 +46,11 @@ RUN apt-get install -y --no-install-recommends \
     texlive-science \
     texlive-latex-extra \
     texlive-plain-generic \
+    texlive-fonts-extra \
     texinfo \
     texlive-xetex \
     texlive-luatex \
+    latexmk \
     imagemagick \
     libjansson-dev \
     libxpm-dev \
@@ -60,9 +62,12 @@ RUN apt-get install -y --no-install-recommends \
     libncurses5-dev \
 #    libgtk2.0-dev \
     libgtk-4-dev \
-#    libwebkit2gtk-4.0-dev \
     libwebkit2gtk-4.0-dev \
+    webkit2gtk-driver \
     libvterm-dev \
+    libgccjit-11-dev \
+    libmagickcore-dev \
+    libmagick++-dev \
     gnutls-dev \
     dvisvgm \
     automake \
@@ -96,20 +101,19 @@ RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xm
 RUN cd /tmp && \
     curl https://gnu.mirror.constant.com/emacs/emacs-28.2.tar.gz -so emacs.tar.gz &&\
     tar xf emacs.tar.gz &&\
-    cd emacs* \
+    cd emacs* &&\
     ./configure \
     -C \
     --with-cairo \
     --with-modules \
-    --with-x-toolkit=gtk4 \
+    --with-x-toolkit=gtk3 \
     --with-native-compilation \
-    --with-image-magick \
+    --with-imagemagick \
     --with-json \
     --with-rsvg \
     --with-xwidgets \
     --with-harfbuzz \
-    --with-modules CC=clang \
-    CFLAGS='-O3 -march=native' \
+    CFLAGS='-O3 -march=native' &&\
     make -j $(nproc) &&\
     checkinstall
 
@@ -150,13 +154,16 @@ RUN rm -rf /var/cache/apt
 RUN rm -r /tmp/*
 
 USER $DUSER
-RUN echo 'y\ny\ny' | emacs --daemon | cat
-RUN if [[ "ARCHTYPE"=="aarch64" ]]; then \
+RUN echo 'y\ny\ny\ny\ny' | emacs --daemon | cat
+
+RUN if [[ "ARCHTYPE"=="arm"* ]]; then \
     cd /workspace/.emacs.d/elpa/zmq*/src/ && \
     ./configure && \
-    make -j $(nproc) && \ 
-    cd ../ && \
-    make -j $(nproc); fi
+    make -j $(nproc); fi 
+
+RUN cd /workspace/.emacs.d/elpa/zmq*/ && \
+    make -j $(nproc)
+
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN . /workspace/.cargo/env && rustup component add rls
 RUN if [[ "$ARCHTYPE"=="x86_64" ]]; then julia -e 'import Pkg; Pkg.add("IJulia")'; fi
