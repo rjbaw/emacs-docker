@@ -49,8 +49,10 @@
 	     :quelpa (spinner
 		       :fetcher github
 		       :repo "Malabarba/spinner.el"))
-(use-package undo-fu)
-(use-package vterm)
+(use-package undo-fu
+	     :defer t)
+(use-package vterm
+	     :ensure t)
 (use-package key-chord
              :config
              (key-chord-define evil-insert-state-map "yy" 'evil-normal-state)
@@ -77,6 +79,7 @@
 (setq org-pretty-entities t)
 (setq org-hide-emphasis-markers t)
 (setq org-adapt-indentation nil)
+(setq org-image-actual-width nil)
 ;(setq org-export-babel-evaluate nil)
 ; imagemagick, dvipng, dvisvgm
 (setq org-preview-latex-default-process 'imagemagick)

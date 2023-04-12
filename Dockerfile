@@ -8,13 +8,13 @@ ARG DUSER
 ARG DGROUP
 ARG DGID
 ARG DUID
-ARG ARCHTYPE
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
 
 ENV DUID=$DUID
 ENV DUSER=$DUSER
 ENV DGID=$DGID
 ENV DGROUP=$DGROUP
-ENV ARCHTYPE=$ARCHTYPE
 
 RUN apt-get update && apt-get dist-upgrade -y 
 RUN apt-get install -y --no-install-recommends \
@@ -60,7 +60,6 @@ RUN apt-get install -y --no-install-recommends \
     libtiff-dev \
     libx11-dev \
     libncurses5-dev \
-#    libgtk2.0-dev \
     libgtk-4-dev \
     libwebkit2gtk-4.0-dev \
     webkit2gtk-driver \
@@ -96,7 +95,7 @@ RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xm
 
 #    git clone git://git.savannah.gnu.org/emacs.git &&
 #    cd emacs && \
-#    git checkout emacs-28 \
+#    git checkout emacs-28.2 \
 
 RUN cd /tmp && \
     curl https://gnu.mirror.constant.com/emacs/emacs-28.2.tar.gz -so emacs.tar.gz &&\
@@ -117,14 +116,6 @@ RUN cd /tmp && \
     make -j $(nproc) &&\
     checkinstall
 
-RUN cd /tmp &&\
-    curl https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.1-linux-x86_64.tar.gz -so julia.tar.gz &&\
-    tar xf julia.tar.gz &&\
-    cd julia* &&\
-    cp -r * /usr/ 
-
-#    --with-x-toolkit=gtk3 \
-
 RUN cd /usr/local/bin &&\
     ln -s /usr/bin/python3 python &&\
     ln -s /usr/bin/pip3 pip &&\
@@ -143,6 +134,7 @@ RUN echo "export JULIA_NUM_THREADS=`nproc`" >> /workspace/.bashrc &&\
     echo "export TERM=xterm-256color" >> /workspace/.bashrc &&\
     echo "alias em='emacsclient -c -n -a \"\"'" >> /workspace/.bashrc &&\
     echo "alias et='emacsclient -t -nw -a \"\"'" >> /workspace/.bashrc &&\
+    echo "alias jb='jupyter notebook --ip=0.0.0.0'" >> /workspace/.bashrc &&\
     echo "source \"/opt/emacs/bin/activate\"" >> /workspace/.bashrc &&\
     echo "source \"/workspace/.cargo/env\"" >> /workspace/.bashrc
 COPY emacs_config /workspace/.emacs.d
@@ -154,19 +146,24 @@ RUN rm -rf /var/cache/apt
 RUN rm -r /tmp/*
 
 USER $DUSER
-RUN echo 'y\ny\ny\ny\ny' | emacs --daemon | cat
 
-RUN if [[ "ARCHTYPE"=="arm"* ]]; then \
-    cd /workspace/.emacs.d/elpa/zmq*/src/ && \
+RUN yes | emacs --daemon | cat
+RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+    cd /workspace/.emacs.d/elpa/zmq*/src && \
     ./configure && \
     make -j $(nproc); fi 
-
-RUN cd /workspace/.emacs.d/elpa/zmq*/ && \
+RUN cd /workspace/.emacs.d/elpa/zmq* && \
     make -j $(nproc)
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN . /workspace/.cargo/env && rustup component add rls
-RUN if [[ "$ARCHTYPE"=="x86_64" ]]; then julia -e 'import Pkg; Pkg.add("IJulia")'; fi
+RUN curl -fsSL https://install.julialang.org | sh -s -- -y && \
+    . /workspace/.bashrc &&\
+    . /workspace/.profile &&\
+    julia -e 'import Pkg; Pkg.add("IJulia")'
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
+    . /workspace/.cargo/env && \
+    rustup component add rls
+
 WORKDIR /workspace
 
 RUN ["/bin/bash"]

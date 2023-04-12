@@ -25,8 +25,6 @@ Opinionated Emacs with orgmode, latex, and batteries included features in Docker
 ```
 
 ### Notes
-
-- IJulia has a missing arm64 build.
 - Console mode is not recommended due to missing features.
 
 ### General Usage

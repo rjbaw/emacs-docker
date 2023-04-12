@@ -11,7 +11,6 @@ services:
         - DGID=$DGID
         - DUSER=$DUSER
         - DGROUP=$DGROUP
-        - ARCHTYPE=$ARCHTYPE
     environment:
       - DISPLAY=$DISPLAY
       - QT_GRAPHICSSYSTEM=native
@@ -24,6 +23,8 @@ services:
       - $HOME/.Xauthority:/root/.Xauthority:rw
       - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro 
       - ~/:/workspace/home 
+    ports:
+      - 8888:8888
     tty: true
-    network_mode: "host"
+    #network_mode: "host"
     #restart: unless-stopped
