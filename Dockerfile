@@ -147,14 +147,6 @@ RUN rm -r /tmp/*
 
 USER $DUSER
 
-RUN yes | emacs --daemon | cat
-RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
-    cd /workspace/.emacs.d/elpa/zmq*/src && \
-    ./configure && \
-    make -j $(nproc); fi 
-RUN cd /workspace/.emacs.d/elpa/zmq* && \
-    make -j $(nproc)
-
 RUN curl -fsSL https://install.julialang.org | sh -s -- -y && \
     . /workspace/.bashrc &&\
     . /workspace/.profile &&\
@@ -163,6 +155,14 @@ RUN curl -fsSL https://install.julialang.org | sh -s -- -y && \
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
     . /workspace/.cargo/env && \
     rustup component add rls
+
+RUN yes | emacs --daemon | cat
+RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+    cd /workspace/.emacs.d/elpa/zmq*/src && \
+    ./configure && \
+    make -j $(nproc); fi 
+RUN cd /workspace/.emacs.d/elpa/zmq* && \
+    make -j $(nproc)
 
 WORKDIR /workspace
 

@@ -16,12 +16,16 @@
 #+LATEX_HEADER: \usepackage{unicode-math}
 #+LATEX_HEADER: \usepackage{tcolorbox}
 #+LATEX_HEADER: \usepackage{fontspec}
-#+LATEX_HEADER: \setmainfont{Nimbus Roman}
+#+LATEX_HEADER: \setmainfont{CMU Serif}
+#+LATEX_HEADER: \setmathfont{Latin Modern Math}
+#+LATEX_HEADER: \setmathfont[range={\mathcal,\mathbfcal},StylisticSet=1]{XITS Math}
+#+LATEX_HEADER: \setmathfont[range=\mathscr]{XITS Math}
 #+LATEX_HEADER: \setmonofont{DejaVu Sans Mono}
 #+LATEX_HEADER: \usemintedstyle{colorful} 
 #+LATEX_HEADER: \setcounter{MaxMatrixCols}{20}
 #+PROPERTY: header-args :cache yes
 #+OPTIONS: ${4:toc:nil \n:t date:nil}
 #+STARTUP: latexpreview
+#+LATEX_COMPILER: lualatex
 
 $0

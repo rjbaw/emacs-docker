@@ -1,7 +1,6 @@
 #!/bin/bash
 set -ae
 
-ARCHTYPE=$(uname -m)
 DUSER=docker-user
 DGROUP=docker-user
 DGID=$(id -g)
@@ -44,11 +43,9 @@ if [[ "$build" == 'true' ]]; then
     fi
 elif [[ "$clean" == 'true' ]]; then
     if [[ "$nocache" == 'true' ]]; then
-        yes | docker buildx prune -a;
-        yes | docker system prune -a;
+        yes | docker buildx prune -a && yes | docker system prune -a;
     else
-        yes | docker buildx prune;
-        yes | docker system prune;
+        yes | docker buildx prune && yes | docker system prune;
     fi
 else
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -65,5 +62,4 @@ else
     fi
     docker exec -it emacs-latex bash
 fi
-
 

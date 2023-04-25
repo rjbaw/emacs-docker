@@ -81,7 +81,7 @@
 (setq org-adapt-indentation nil)
 (setq org-image-actual-width nil)
 ;(setq org-export-babel-evaluate nil)
-; imagemagick, dvipng, dvisvgm
+; imagemagick(lualatex only), dvipng(unicode not supported), dvisvgm(xelatex only)
 (setq org-preview-latex-default-process 'imagemagick)
 (setq org-latex-inputenc-alist '(("utf8")))
 (setq org-latex-minted-options '(("breaklines" "true")
@@ -89,39 +89,39 @@
 (setq org-latex-listings 'minted)
 (setq org-latex-packages-alist '(("" "minted" t)
                                  ("" "tcolorbox" t))) ;unicode-math
-; Backends: pdflatex, xelatex, lualatex
+; Backends: pdflatex, xelatex, lualatex (Specify in LATEX_COMPILER)
 (setq org-latex-pdf-process
-      '("lualatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "lualatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "lualatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+      '("latexmk -pdflatex='%latex -shell-escape -interaction nonstopmode' -pdf -output-directory=%o %f"))
 (font-lock-add-keywords 'org-mode
                         '(("^ *\\([-]\\) "
                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 (setq org-preview-latex-process-alist
-       '((dvipng :programs
-         ("lualatex" "dvipng")
-         :description "dvi > png" :message "you need to install the programs: latex and dvipng." :image-input-type "dvi" :image-output-type "png" :image-size-adjust
-         (1.0 . 1.0)
-         :latex-compiler
-         ("lualatex -output-format dvi -interaction nonstopmode -output-directory %o %f")
-         :image-converter
-         ("dvipng -fg %F -bg %B -D %D -T tight -o %O %f"))
-       (dvisvgm :programs
-          ("lualatex" "dvisvgm")
-          :description "dvi > svg" :message "you need to install the programs: latex and dvisvgm." :use-xcolor t :image-input-type "xdv" :image-output-type "svg" :image-size-adjust
-          (3 . 1.5)
-          :latex-compiler
-          ("lualatex -no-pdf -interaction nonstopmode -output-directory %o %f")
-          :image-converter
-          ("dvisvgm %f -n -b min -c %S -o %O"))
-       (imagemagick :programs
-              ("lualatex" "convert")
-              :description "pdf > png" :message "you need to install the programs: latex and imagemagick." :use-xcolor t :image-input-type "pdf" :image-output-type "png" :image-size-adjust
-              (1.0 . 1.0)
-              :latex-compiler
-              ("lualatex -no-pdf -interaction nonstopmode -output-directory %o %f")
-              :image-converter
-              ("convert -density %D -trim -antialias %f -quality 100 %O"))))
+      '((dvipng :programs ("latex" "dvipng")
+		:description "dvi > png"
+		:message "you need to install the programs: latex and dvipng."
+		:image-input-type "dvi"
+		:image-output-type "png"
+		:image-size-adjust (1.0 . 1.0)
+		:latex-compiler ("latex -interaction nonstopmode -output-directory %o %f")
+		:image-converter ("dvipng -D %D -T tight -o %O %f"))
+	(dvisvgm :programs ("latex" "dvisvgm")
+		 :description "dvi > svg"
+		 :message "you need to install the programs: latex and dvisvgm."
+		 :use-xcolor t
+		 :image-input-type "xdv"
+		 :image-output-type "svg"
+		 :image-size-adjust (1.7 . 1.5)
+		 :latex-compiler ("xelatex -no-pdf -interaction nonstopmode -output-directory %o %f")
+		 :image-converter ("dvisvgm %f -n -b min -c %S -o %O"))
+	(imagemagick :programs ("latex" "convert")
+		     :description "pdf > png"
+		     :message "you need to install the programs: latex and imagemagick."
+		     :use-xcolor t
+		     :image-input-type "pdf"
+		     :image-output-type "png"
+		     :image-size-adjust (1.0 . 1.0)
+		     :latex-compiler ("lualatex -interaction nonstopmode -output-directory %o %f")
+		     :image-converter ("convert -density %D -trim -antialias %f -quality 100 %O"))))
 (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
 (add-hook 'org-mode-hook 'org-display-inline-images)
 (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
@@ -136,9 +136,9 @@
 (setq org-src-preserve-indentation t
       org-src-tab-acts-natively t
       org-edit-src-content-indentation 0)
-(use-package spacemacs-common
-    :ensure spacemacs-theme
-    :config (load-theme 'spacemacs-dark t))
+(use-package spacemacs-theme
+	     :ensure t
+	     :config (load-theme 'spacemacs-dark t))
 
 ;(use-package undo-tree
 ;    :quelpa (undo-tree
