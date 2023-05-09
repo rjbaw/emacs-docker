@@ -26,6 +26,7 @@
 (add-to-list 'package-archives
 	     '("gnu" . "https://elpa.gnu.org/packages/") t)
 (package-initialize)
+(package-refresh-contents)
 
 ;(unless (package-installed-p 'use-package)
 ;  (package-refresh-contents)
@@ -53,11 +54,6 @@
 	     :defer t)
 (use-package vterm
 	     :ensure t)
-(use-package key-chord
-             :config
-             (key-chord-define evil-insert-state-map "yy" 'evil-normal-state)
-	     :hook (evil-mode . key-chord-mode)
-             :ensure t)
 (use-package evil
 	     :ensure t
 	     :init
@@ -72,6 +68,12 @@
 	     :config
 	     (evil-collection-init)
 	     :ensure t)
+(use-package key-chord
+             :config
+             (key-chord-define evil-insert-state-map "yy" 'evil-normal-state)
+	     :hook (evil-mode . key-chord-mode)
+             :ensure t)
+(define-key evil-normal-state-map "\C-v" 'evil-visual-block)
 
 (use-package org
 	     :ensure t)

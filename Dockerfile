@@ -161,9 +161,8 @@ RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
     cd /workspace/.emacs.d/elpa/zmq*/src && \
     ./configure && \
     make -j $(nproc); fi 
-RUN cd /workspace/.emacs.d/elpa/zmq* && \
-    make -j $(nproc)
+RUN (cd /workspace/.emacs.d/elpa/zmq* && make -j $(nproc)) || true
 
 WORKDIR /workspace
 
-RUN ["/bin/bash"]
+RUN ["bash"]

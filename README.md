@@ -26,6 +26,7 @@ Opinionated Emacs with orgmode, latex, and batteries included features in Docker
 
 ### Notes
 - Console mode is not recommended due to missing features.
+- Recommend local rebuilds for performance and permissions.
 
 ### General Usage
 #### Entry Point
