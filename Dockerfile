@@ -155,6 +155,7 @@ RUN curl -fsSL https://install.julialang.org | sh -s -- -y && \
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
     . /workspace/.cargo/env && \
     rustup component add rls
+RUN /workspace/.cargo/bin/cargo install texlab
 
 RUN yes | emacs --daemon | cat
 RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \

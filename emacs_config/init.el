@@ -182,6 +182,7 @@
 (add-to-list 'company-backends 'company-math-symbols-unicode)
 (use-package auctex
   :defer t)
+(setq-default TeX-engine 'luatex)
 (use-package yasnippet
   :ensure t)
 (use-package yasnippet-snippets
@@ -204,7 +205,9 @@
   (setq highlight-indent-guides-method 'character))
 (use-package jupyter)
 (use-package ess)
+(use-package ein)
 (use-package julia-mode)
+(use-package matlab-mode)
 (use-package rust-mode)
 (use-package org-download)
 (setq-default org-download-screenshot-method "scrot -s %s")

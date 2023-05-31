@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: \textnormal
+# key: tn
+# --
+\textnormal{$1}$0
