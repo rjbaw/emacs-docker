@@ -9,7 +9,7 @@ Opinionated Emacs with orgmode, latex, and batteries included features in Docker
 ## Screenshots
 ### Jupyter Blocks
 ![Alt text](https://github.com/rjbaw/org-latex-docker/blob/b4bf8c35ec9ab5192bd9723b4b26e00a1c4f01c0/images/code-block.gif)  
-### LaTeX fragments (jkitchin)
+### LaTeX fragments (texfrag)
 ![Alt text](https://github.com/rjbaw/org-latex-docker/blob/b4bf8c35ec9ab5192bd9723b4b26e00a1c4f01c0/images/latex-render.gif)  
 ### SymPy render
 ![Alt text](https://github.com/rjbaw/org-latex-docker/blob/b4bf8c35ec9ab5192bd9723b4b26e00a1c4f01c0/images/sym-render.gif)  

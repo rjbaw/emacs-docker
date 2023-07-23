@@ -19,7 +19,6 @@ ENV DGROUP=$DGROUP
 RUN apt-get update && apt-get dist-upgrade -y 
 RUN apt-get install -y --no-install-recommends \
     devscripts \
-    checkinstall \
     software-properties-common \
     git \
     python3 \
@@ -114,7 +113,7 @@ RUN cd /tmp && \
     --with-harfbuzz \
     CFLAGS='-O3 -march=native' &&\
     make -j $(nproc) &&\
-    checkinstall
+    make install
 
 RUN cd /usr/local/bin &&\
     ln -s /usr/bin/python3 python &&\
@@ -122,7 +121,7 @@ RUN cd /usr/local/bin &&\
     python3 -m venv /opt/emacs &&\                                             
     chmod +x /opt/emacs/bin/activate  &&\                                      
     . /opt/emacs/bin/activate &&\  
-    pip install -U pip jupyter numpy matplotlib scipy sympy cvxpy
+    pip install -U pip jupyter jupyterlab numpy matplotlib scipy sympy cvxpy
 
 RUN userdel `id -nu $DUID` || true
 RUN groupadd -g $DGID $DGROUP || true;

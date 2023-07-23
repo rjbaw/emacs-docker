@@ -5,25 +5,33 @@ DUSER=docker-user
 DGROUP=docker-user
 DGID=$(id -g)
 DUID=$(id -u)
+PLATFORM=$(uname -m)
+REPO="rjbaw/emacs-latex"
 
 print_usage() {
-    printf "Usage:"
-    printf "-b build"
-    printf "   -f no cache"
-    printf "   -p push to remote"
-    printf "   -m multiarch"
-    printf "-c clean"
-    printf "   -f clean all"
+    printf \
+"Usage:
+    -b build
+	-f no cache
+	-p push to remote
+	-m multiarch
+    -c clean
+	-f clean all
+    -g gpu
+    -d close instance
+    \n"
 }
 
-while getopts 'bfpmc' flag; do
+while getopts 'hbfpmcdg' flag; do
   case "${flag}" in
     b) build='true' ;;
     f) nocache='true' ;;
     p) push='true' ;;
     m) multi='true' ;;
     c) clean='true' ;;
-    *) print_usage
+    d) down='true' ;;
+    g) gpu='true' ;;
+    h | *) print_usage
        exit 1 ;;
   esac
 done
@@ -33,13 +41,21 @@ if [[ "$build" == 'true' ]]; then
     if [[ "$nocache" == 'true' ]]; then
 	ARGS+='--no-cache ';
     fi
-    if [[ "$push" == 'true' ]]; then
-	ARGS+='--push ';
-    fi
     if [[ "$multi" == 'true' ]]; then
+        if [[ "$push" == 'true' ]]; then
+       	    ARGS+='--push ';
+        fi
         docker buildx bake --set *.platform=linux/arm64,linux/amd64 $ARGS;
     else
         docker compose build $ARGS;
+        if [[ "$push" == 'true' ]]; then
+	    docker tag "$REPO:latest" "$REPO:manifest-$PLATFORM";
+    	    docker push "$REPO:manifest-$PLATFORM";
+	    docker manifest create -a "$REPO:latest" \
+		    "$REPO:manifest-x86_64" \ 
+		    "$REPO:manifest-arm64";
+    	    docker manifest push "$REPO:latest";
+	fi
     fi
 elif [[ "$clean" == 'true' ]]; then
     if [[ "$nocache" == 'true' ]]; then
@@ -48,17 +64,24 @@ elif [[ "$clean" == 'true' ]]; then
         yes | docker buildx prune && yes | docker system prune;
     fi
 else
+    if [[ "$down" == "true" ]]; then 
+        docker compose down;
+	exit;
+    fi
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         DISPLAY=unix$DISPLAY;
-        docker compose up -d;
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         # https://gist.github.com/cschiewek/246a244ba23da8b9f0e7b11a68bf3285?permalink_comment_id=3477013#gistcomment-3477013
         xhost +localhost;
         DISPLAY=host.docker.internal:0;
-        docker compose up -d;
     else
         echo "not supported";
         exit 1
+    fi
+    if [[ "$gpu" == "true" ]]; then 
+        docker compose -f docker-compose-gpu.yml up -d;
+    else
+        docker compose up -d;
     fi
     docker exec -it emacs-latex bash
 fi

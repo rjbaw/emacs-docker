@@ -3,7 +3,6 @@ services:
   emacs-latex:
     image: rjbaw/emacs-latex:latest
     container_name: emacs-latex
-    user: $DUID:$DGID
     build:
       context: .
       dockerfile: Dockerfile
@@ -27,5 +26,13 @@ services:
     ports:
       - 8888:8888
     tty: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
     #network_mode: "host"
     #restart: unless-stopped
