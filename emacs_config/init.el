@@ -50,15 +50,13 @@
 	     :quelpa (spinner
 		       :fetcher github
 		       :repo "Malabarba/spinner.el"))
-(use-package undo-fu
-	     :defer t)
 (use-package vterm
 	     :ensure t)
 (use-package evil
 	     :init
              (setq evil-want-integration t)
              (setq evil-want-keybinding nil)
-             (setq evil-undo-system 'undo-fu)
+             (setq evil-undo-system 'undo-redo)
              (setq evil-want-C-u-scroll t)
              (setq evil-esc-delay 0)
              :config
@@ -144,20 +142,13 @@
 
 (use-package texfrag
 	     :ensure t
-	     :init 
-	     (texfrag-scale 2.0)
 	     :config
+	     (texfrag-scale 2.0)
 	     (texfrag-global-mode))
 
 (use-package spacemacs-theme
 	     :ensure t
 	     :config (load-theme 'spacemacs-dark t))
-
-;(use-package undo-tree
-;    :quelpa (undo-tree
-;            :fetcher git
-;            :url "http://www.dr-qubit.org/undo-tree/undo-tree.el"))
-;(add-hook 'evil-local-mode-hook 'turn-on-undo-tree-mode)
 
 (use-package magit
 	     :ensure t)
@@ -218,7 +209,7 @@
 (use-package ess)
 (use-package ein)
 (use-package julia-mode)
-(use-package matlab-mode)
+;(use-package matlab-mode)
 (use-package rust-mode)
 (use-package org-download)
 (setq-default org-download-screenshot-method "scrot -s %s")
@@ -279,22 +270,34 @@
                           (require 'lsp-pyright)
                           (lsp))))
 
-(defvar my/was-inside-math nil)
-
-(defun my/preview-when-leaving-math ()
- (let ((in-math (texmathp)))
-   (cond (in-math
-          (setq my/was-inside-math t))
-         ((and (not in-math)
-               my/was-inside-math)
-          (progn
-            (condition-case ex
-                (unless (or (get-process "Preview-LaTeX") 
-			    (get-process "Preview-Ghostscript")
-			    (get-process "Preview-PDF2DSC"))
-		  (texfrag-region))
-              ('error
-               (message (format "Could not invoke Preview: %s" ex))))
-            (setq my/was-inside-math nil))))))
-
-(add-hook 'post-command-hook 'my/preview-when-leaving-math t)
+(defvar texfrag-auto-mode nil)
+(defun texfrag-auto--evaluate-function ()
+  (when (eq major-mode 'org-mode)
+    (preview-at-point)))
+(defun texfrag-auto--after-save ()
+  (when (and texfrag-auto-mode
+             (eq major-mode 'org-mode))
+    (texfrag-auto--evaluate-function)))
+(define-minor-mode texfrag-auto-mode
+  "A minor mode that evaluates a custom function (e.g., `preview-at-point') in Org Mode buffers on save."
+  :lighter " TexFrag-Auto"
+  :init-value nil
+  :global nil
+  :group 'org
+  (if texfrag-auto-mode
+      (add-hook 'after-save-hook 'texfrag-auto--after-save nil 'local)
+    (remove-hook 'after-save-hook 'texfrag-auto--after-save 'local)))
+(defun texfrag-auto-org-hook ()
+  (if (eq major-mode 'org-mode)
+      (texfrag-auto-mode 1)))
+(add-hook 'org-mode-hook 'texfrag-auto-org-hook)
+(defun texfrag-auto-evil-normal-hook ()
+  (when (and texfrag-auto-mode
+             (eq major-mode 'org-mode))
+    (texfrag-auto--evaluate-function)))
+(defun texfrag-auto-evil-insert-hook ()
+  (when (and texfrag-auto-mode
+             (eq major-mode 'org-mode))
+    (texfrag-auto--evaluate-function)))
+(add-hook 'evil-normal-state-entry-hook 'texfrag-auto-evil-normal-hook)
+(add-hook 'evil-insert-state-entry-hook 'texfrag-auto-evil-insert-hook)

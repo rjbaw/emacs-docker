@@ -86,6 +86,7 @@ RUN apt-get install -y --no-install-recommends \
     npm \
     fzf \
     bash-completion \
+    iproute2 \
     jupyter
 
 COPY fonts /tmp/fonts/
@@ -97,7 +98,7 @@ RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xm
 #    git checkout emacs-28.2 \
 
 RUN cd /tmp && \
-    curl https://gnu.mirror.constant.com/emacs/emacs-28.2.tar.gz -so emacs.tar.gz &&\
+    curl -L https://ftpmirror.gnu.org/emacs/emacs-29.1.tar.gz -so emacs.tar.gz &&\
     tar xf emacs.tar.gz &&\
     cd emacs* &&\
     ./configure \

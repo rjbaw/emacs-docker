@@ -21,7 +21,7 @@ services:
       - /run/udev/:/run/udev:ro 
       - /etc/localtime:/etc/localtime:ro 
       - /tmp/.X11-unix:/tmp/.X11-unix:rw 
-      - $HOME/.Xauthority:/root/.Xauthority:rw
+      - $HOME/.Xauthority:/workspace/.Xauthority:rw
       - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro 
       - $HOME/:/workspace/home 
     ports:

@@ -52,16 +52,18 @@ if [[ "$build" == 'true' ]]; then
 	    docker tag "$REPO:latest" "$REPO:manifest-$PLATFORM";
     	    docker push "$REPO:manifest-$PLATFORM";
 	    docker manifest create -a "$REPO:latest" \
-		    "$REPO:manifest-x86_64" \ 
-		    "$REPO:manifest-arm64";
+		    "$REPO:manifest-x86_64" \
+		    "$REPO:manifest-aarch64";
     	    docker manifest push "$REPO:latest";
 	fi
     fi
 elif [[ "$clean" == 'true' ]]; then
     if [[ "$nocache" == 'true' ]]; then
-        yes | docker buildx prune -a && yes | docker system prune -a;
+       	yes | docker system prune -a;
+        yes | docker buildx prune -a;
     else
-        yes | docker buildx prune && yes | docker system prune;
+       	yes | docker system prune;
+        yes | docker buildx prune;
     fi
 else
     if [[ "$down" == "true" ]]; then 
