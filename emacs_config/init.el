@@ -272,8 +272,15 @@
 
 (defvar texfrag-auto-mode nil)
 (defun texfrag-auto--evaluate-function ()
-  (when (eq major-mode 'org-mode)
-    (preview-at-point)))
+  (when (and texfrag-auto-mode
+             (eq major-mode 'org-mode))
+    (unless (texfrag-auto--process-running-p "Preview-LaTeX")
+      (texfrag-document))))
+(defun texfrag-auto--process-running-p (process-name)
+  (cl-some (lambda (proc)
+             (and (string= (process-name proc) process-name)
+                  (process-live-p proc)))
+           (process-list)))
 (defun texfrag-auto--after-save ()
   (when (and texfrag-auto-mode
              (eq major-mode 'org-mode))
@@ -287,10 +294,6 @@
   (if texfrag-auto-mode
       (add-hook 'after-save-hook 'texfrag-auto--after-save nil 'local)
     (remove-hook 'after-save-hook 'texfrag-auto--after-save 'local)))
-(defun texfrag-auto-org-hook ()
-  (if (eq major-mode 'org-mode)
-      (texfrag-auto-mode 1)))
-(add-hook 'org-mode-hook 'texfrag-auto-org-hook)
 (defun texfrag-auto-evil-normal-hook ()
   (when (and texfrag-auto-mode
              (eq major-mode 'org-mode))
@@ -301,3 +304,4 @@
     (texfrag-auto--evaluate-function)))
 (add-hook 'evil-normal-state-entry-hook 'texfrag-auto-evil-normal-hook)
 (add-hook 'evil-insert-state-entry-hook 'texfrag-auto-evil-insert-hook)
+
