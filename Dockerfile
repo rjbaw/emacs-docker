@@ -87,7 +87,7 @@ RUN apt-get install -y --no-install-recommends \
     fzf \
     bash-completion \
     iproute2 \
-    jupyter
+    ispell 
 
 COPY fonts /tmp/fonts/
 RUN cp /tmp/fonts/* /usr/local/share/fonts/
@@ -98,7 +98,7 @@ RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xm
 #    git checkout emacs-28.2 \
 
 RUN cd /tmp && \
-    curl -L https://ftpmirror.gnu.org/emacs/emacs-29.1.tar.gz -so emacs.tar.gz &&\
+    curl -L https://ftpmirror.gnu.org/emacs/emacs-29.2.tar.gz -so emacs.tar.gz &&\
     tar xf emacs.tar.gz &&\
     cd emacs* &&\
     ./configure \
@@ -122,7 +122,7 @@ RUN cd /usr/local/bin &&\
     python3 -m venv /opt/emacs &&\                                             
     chmod +x /opt/emacs/bin/activate  &&\                                      
     . /opt/emacs/bin/activate &&\  
-    pip install -U pip jupyter jupyterlab numpy matplotlib scipy sympy cvxpy
+    pip install -U pip jupyterlab jupyterlab-vim numpy matplotlib scipy sympy cvxpy
 
 RUN userdel `id -nu $DUID` || true
 RUN groupadd -g $DGID $DGROUP || true;
@@ -134,7 +134,7 @@ RUN echo "export JULIA_NUM_THREADS=`nproc`" >> /workspace/.bashrc &&\
     echo "export TERM=xterm-256color" >> /workspace/.bashrc &&\
     echo "alias em='emacsclient -c -n -a \"\"'" >> /workspace/.bashrc &&\
     echo "alias et='emacsclient -t -nw -a \"\"'" >> /workspace/.bashrc &&\
-    echo "alias jb='jupyter notebook --ip=0.0.0.0'" >> /workspace/.bashrc &&\
+    echo "alias jb='jupyter-lab --ip=0.0.0.0'" >> /workspace/.bashrc &&\
     echo "source \"/opt/emacs/bin/activate\"" >> /workspace/.bashrc &&\
     echo "source \"/workspace/.cargo/env\"" >> /workspace/.bashrc
 COPY emacs_config /workspace/.emacs.d

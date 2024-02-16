@@ -7,7 +7,6 @@
 #+SUBTITLE: ${2:Course Code}
 #+AUTHOR: ${3:Name}
 #+LATEX_CLASS: article
-#+LATEX_HEADER: \usepackage[a4paper, total={6in, 8in}]{geometry}
 #+LATEX_HEADER: \usepackage{mathrsfs}
 #+LATEX_HEADER: \usepackage{xcolor}
 #+LATEX_HEADER: \usepackage{amsmath}
@@ -16,13 +15,14 @@
 #+LATEX_HEADER: \usepackage{unicode-math}
 #+LATEX_HEADER: \usepackage{tcolorbox}
 #+LATEX_HEADER: \usepackage{fontspec}
-#+LATEX_HEADER: \setmainfont{CMU Serif}
+# +LATEX_HEADER: \setmainfont{CMU Serif}
 #+LATEX_HEADER: \setmathfont{Latin Modern Math}
 #+LATEX_HEADER: \setmathfont[range={\mathcal,\mathbfcal},StylisticSet=1]{XITS Math}
 #+LATEX_HEADER: \setmathfont[range=\mathscr]{XITS Math}
 #+LATEX_HEADER: \setmonofont{DejaVu Sans Mono}
 #+LATEX_HEADER: \usemintedstyle{colorful} 
 #+LATEX_HEADER: \setcounter{MaxMatrixCols}{20}
+#+LATEX_HEADER_EXTRA: \usepackage[a4paper, total={6in, 8in}]{geometry}
 #+PROPERTY: header-args :cache yes
 #+OPTIONS: ${4:toc:nil \n:t date:nil}
 #+STARTUP: latexpreview

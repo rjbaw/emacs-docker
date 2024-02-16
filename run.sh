@@ -71,7 +71,8 @@ else
 	exit;
     fi
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        DISPLAY=unix$DISPLAY;
+        xhost +localhost;
+        DISPLAY=$DISPLAY;
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         # https://gist.github.com/cschiewek/246a244ba23da8b9f0e7b11a68bf3285?permalink_comment_id=3477013#gistcomment-3477013
         xhost +localhost;
