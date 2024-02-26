@@ -229,11 +229,21 @@
   (add-to-list 'company-backends 'company-math-symbols-unicode))
 
 (use-package auctex
-  :init
-  (setq-default TeX-engine 'luatex)
-  (unless (fboundp 'TeX-latex-mode) (defalias 'TeX-latex-mode 'latex-mode))
   :ensure t
+  :init
+  (unless (fboundp 'TeX-latex-mode) (defalias 'TeX-latex-mode 'latex-mode))
+  (setq-default TeX-engine 'luatex)
+  (setq-default preview-scale-function 1.5)
+  :hook
+  ((LaTeX-mode) . texfrag-auto-mode)
   )
+
+(use-package auctex-latexmk
+  :ensure t
+  :init
+  (auctex-latexmk-setup)
+  )
+
 
 (use-package yasnippet
   :config
@@ -315,22 +325,19 @@
 
 (defvar texfrag-auto-mode nil)
 (defun texfrag-auto--evaluate-function ()
-  (when (and texfrag-auto-mode
-	     (or (eq major-mode 'org-mode)
-		 (eq major-mode 'latex-mode)))
+  (when texfrag-auto-mode
     (unless (texfrag-auto--process-running-p "Preview-LaTeX")
-      (preview-at-point))))
+      (preview-buffer))))
 (defun texfrag-auto--process-running-p (process-name)
   (cl-some (lambda (proc)
-	     (and (string= (process-name proc) process-name)
-		  (process-live-p proc)))
-	   (process-list)))
+             (and (string= (process-name proc) process-name)
+                  (process-live-p proc)))
+           (process-list)))
 (defun texfrag-auto--after-save ()
-  (when (and texfrag-auto-mode
-	     (or (eq major-mode 'org-mode)
-		 (eq major-mode 'latex-mode)))
+  (when texfrag-auto-mode
     (texfrag-auto--evaluate-function)))
 (define-minor-mode texfrag-auto-mode
+  "TexFrag-Auto"
   :lighter " TexFrag-Auto"
   :init-value nil
   :global nil
@@ -338,7 +345,3 @@
   (if texfrag-auto-mode
       (add-hook 'after-save-hook 'texfrag-auto--after-save nil 'local)
     (remove-hook 'after-save-hook 'texfrag-auto--after-save 'local)))
-(defun texfrag-auto-setup-evil-hooks ()
-  (when (featurep 'evil)
-    ))
-(add-hook 'emacs-startup-hook 'texfrag-auto-setup-evil-hooks)

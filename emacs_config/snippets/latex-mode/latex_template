@@ -1,0 +1,65 @@
+# -*- mode: snippet -*-
+# name: Latex template
+# key: latex_template
+# --
+
+\documentclass[a4paper]{article}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage{tcolorbox}
+\usepackage{mathrsfs}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{gensymb}
+\usepackage{cancel}
+\usepackage{unicode-math}
+\usepackage{tcolorbox}
+\usepackage{fontspec}
+\setmathfont{Latin Modern Math}
+\setmathfont[range={\mathcal,\mathbfcal},StylisticSet=1]{XITS Math}
+\setmathfont[range=\mathscr]{XITS Math}
+\setmonofont{DejaVu Sans Mono}
+\usemintedstyle{colorful}
+\setcounter{MaxMatrixCols}{20}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{multicol}
+\usepackage{fancyhdr}
+\newtheorem*{sol}{Solution}
+\newtheorem*{claim}{Claim}
+\newtheorem{problem}{Problem}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\usepackage[margin=1in]{geometry}
+\pagestyle{fancy}
+\lhead{$1}
+\chead{$2}
+\rhead{$3}
+\author{$4}
+\date{}
+\title{${5:Title}\\\medskip
+\large ${6:Subtitle}}
+
+\begin{document}
+
+\maketitle
+
+$0
+
+\end{document}
+
+%%% Local Variables: 
+%%% TeX-command-extra-options: "-shell-escape"
+%%% End:
