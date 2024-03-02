@@ -7,9 +7,14 @@
 #+SUBTITLE: ${2:Course Code}
 #+AUTHOR: ${3:Name}
 #+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [a4paper]
 #+LATEX_HEADER: \usepackage{mathrsfs}
 #+LATEX_HEADER: \usepackage{xcolor}
 #+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amssymb}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{amsthm}
+#+LATEX_HEADER: \usepackage{mathtools}
 #+LATEX_HEADER: \usepackage{gensymb}
 #+LATEX_HEADER: \usepackage{cancel}
 #+LATEX_HEADER: \usepackage{unicode-math}
@@ -22,9 +27,30 @@
 #+LATEX_HEADER: \setmonofont{DejaVu Sans Mono}
 #+LATEX_HEADER: \usemintedstyle{colorful} 
 #+LATEX_HEADER: \setcounter{MaxMatrixCols}{20}
-#+LATEX_HEADER_EXTRA: \usepackage[a4paper, total={6in, 8in}]{geometry}
+#+LATEX_HEADER: \usepackage{tikz}
+#+LATEX_HEADER: \usepackage{pgfplots}
+#+LATEX_HEADER: \usepackage{multicol}
+#+LATEX_HEADER: \usepackage{fancyhdr}
+
+#+LATEX_HEADER: \newtheorem*{sol}{Solution}
+#+LATEX_HEADER: \newtheorem*{claim}{Claim}
+#+LATEX_HEADER: \newtheorem{problem}{Problem}
+#+LATEX_HEADER: \newtheorem{theorem}{Theorem}[section] 
+#+LATEX_HEADER: \newtheorem{lemma}[theorem]{Lemma}
+#+LATEX_HEADER: \newtheorem{proposition}[theorem]{Proposition}
+#+LATEX_HEADER: \newtheorem{corollary}[theorem]{Corollary}
+
+#+LATEX_HEADER: \usepackage[displaymath,textmath,floats,graphics,sections]{preview}
+#+LATEX_HEADER: \PreviewEnvironment{tcolorbox}
+
+#+LATEX_HEADER_EXTRA: \usepackage[margin=1in]{geometry}
+#+LATEX_HEADER_EXTRA: \pagestyle{fancy}
+#+LATEX_HEADER_EXTRA: \lhead{$2}
+#+LATEX_HEADER_EXTRA: \chead{$1}
+#+LATEX_HEADER_EXTRA: \rhead{$3}
+
 #+PROPERTY: header-args :cache yes
-#+OPTIONS: ${4:toc:nil \n:t date:nil}
+#+OPTIONS: toc:nil date:nil
 #+STARTUP: latexpreview
 #+LATEX_COMPILER: lualatex
 

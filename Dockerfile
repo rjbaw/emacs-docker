@@ -93,10 +93,6 @@ COPY fonts /tmp/fonts/
 RUN cp /tmp/fonts/* /usr/local/share/fonts/
 RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml
 
-#    git clone git://git.savannah.gnu.org/emacs.git &&
-#    cd emacs && \
-#    git checkout emacs-28.2 \
-
 RUN cd /tmp && \
     curl -L https://ftpmirror.gnu.org/emacs/emacs-29.2.tar.gz -so emacs.tar.gz &&\
     tar xf emacs.tar.gz &&\
