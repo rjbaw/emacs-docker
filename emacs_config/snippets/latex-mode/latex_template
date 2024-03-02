@@ -47,12 +47,12 @@
 \usepackage[margin=1in]{geometry}
 \pagestyle{fancy}
 \lhead{$1}
-\chead{${2:Title}}
+\chead{$2}
 \rhead{$3}
 \author{$4}
 \date{}
 \title{$2\\\medskip
-\large ${6:Subtitle}}
+\large $5}
 
 \begin{document}
 
