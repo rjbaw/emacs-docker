@@ -89,12 +89,16 @@ RUN apt-get install -y --no-install-recommends \
     iproute2 \
     ispell 
 
+RUN npm install -g n &&\
+    n stable
+#    npm install -g npm
+
 COPY fonts /tmp/fonts/
 RUN cp /tmp/fonts/* /usr/local/share/fonts/
 RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml
 
 RUN cd /tmp && \
-    curl -L https://ftpmirror.gnu.org/emacs/emacs-29.2.tar.gz -so emacs.tar.gz &&\
+    curl -L https://ftp.gnu.org/gnu/emacs/emacs-29.3.tar.gz -so emacs.tar.gz &&\
     tar xf emacs.tar.gz &&\
     cd emacs* &&\
     ./configure \
@@ -118,7 +122,7 @@ RUN cd /usr/local/bin &&\
     python3 -m venv /opt/emacs &&\                                             
     chmod +x /opt/emacs/bin/activate  &&\                                      
     . /opt/emacs/bin/activate &&\  
-    pip install -U pip jupyterlab jupyterlab-vim numpy matplotlib scipy sympy cvxpy
+    pip install -U pip jupyterlab jupyterlab-vim numpy matplotlib scipy sympy cvxpy torch tqdm
 
 RUN userdel `id -nu $DUID` || true
 RUN groupadd -g $DGID $DGROUP || true;

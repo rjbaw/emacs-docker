@@ -7,6 +7,8 @@
 
 (setq inhibit-startup-message t
       visible-bell t
+      c-default-style "linux"
+      c-basic-offset 4
       default-frame-alist '((font . "DM Mono"))
       custom-file "~/.emacs.d/custom-file.el"
       native-comp-async-report-warnings-errors nil
@@ -265,9 +267,9 @@
   (require 'spaceline-config)
   (spaceline-spacemacs-theme))
 
-(use-package smartparens
-  :config (smartparens-global-mode t))
-					;(electric-pair-mode t)
+;(use-package smartparens
+;  :config (smartparens-global-mode t))
+;(electric-pair-mode t)
 
 (use-package highlight-indent-guides
   :config
@@ -317,6 +319,7 @@
   :ensure t
   :after lsp-mode
   :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp)))
+  :config (setq lsp-pyright-venv-path "/opt/emacs/")
   )
 
 (use-package texfrag

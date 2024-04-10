@@ -2,14 +2,14 @@
 Opinionated Emacs with orgmode, latex, and batteries included features in Docker Compose.
 
 ## Core Components
-- Emacs 29.2 with Gtk GUI  
+- Emacs 29.3 with Gtk GUI  
 - PDFLatex, XeLaTeX, LuaLaTeX.  
 - Python 3, Julia, Jupyter Notebook  
 
 ## Screenshots
 ### Jupyter Blocks
 ![Alt text](https://github.com/rjbaw/org-latex-docker/blob/b4bf8c35ec9ab5192bd9723b4b26e00a1c4f01c0/images/code-block.gif)  
-### LaTeX fragments (texfrag)
+### LaTeX fragments
 ![Alt text](https://github.com/rjbaw/org-latex-docker/blob/b4bf8c35ec9ab5192bd9723b4b26e00a1c4f01c0/images/latex-render.gif)  
 ### SymPy render
 ![Alt text](https://github.com/rjbaw/org-latex-docker/blob/b4bf8c35ec9ab5192bd9723b4b26e00a1c4f01c0/images/sym-render.gif)  
