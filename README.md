@@ -43,8 +43,7 @@ et
 ```
 
 #### Evil-mode
-This mode requires the knowledge of Vim key bindings.  
-(Not recommended) Deactivate temporarily by running M-x evil-mode twice or add `(evil-mode 0)` to ~/.emacs.d/init.el
+Deactivate by running M-x evil-mode twice or add `(evil-mode 0)` to ~/.emacs.d/init.el
 #### Snippets
 Included `yasnippet-snippets` and few more in `snippets/` folder.  
 #### Code Blocks

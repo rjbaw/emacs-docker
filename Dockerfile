@@ -1,5 +1,5 @@
-ARG UBUNTU_VERSION=22.04
-FROM ubuntu:${UBUNTU_VERSION}
+ARG image
+FROM $image
 
 LABEL maintainer="rjbaw"
 ENV DEBIAN_FRONTEND=noninteractive 
@@ -87,7 +87,11 @@ RUN apt-get install -y --no-install-recommends \
     fzf \
     bash-completion \
     iproute2 \
-    ispell 
+    ispell \
+    libosmesa6-dev \
+    libgl1-mesa-glx \
+    libglfw3 \
+    patchelf
 
 RUN npm install -g n &&\
     n stable

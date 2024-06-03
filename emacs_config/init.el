@@ -153,7 +153,7 @@
 		       :latex-compiler ("lualatex -interaction nonstopmode -output-directory %o %f")
 		       :image-converter ("convert -density %D -trim -antialias %f -quality 100 %O"))))
   (font-lock-add-keywords 'org-mode '(("^ *\\([-]\\) " (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-  (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
@@ -324,7 +324,7 @@
 
 (use-package texfrag
   :init
-  (setq texfrag-scale 1.5)
+  (setq texfrag-scale 1.2)
   :ensure t
   :config
   (texfrag-global-mode))

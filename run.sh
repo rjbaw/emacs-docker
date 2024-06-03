@@ -6,7 +6,6 @@ DGROUP=docker-user
 DGID=$(id -g)
 DUID=$(id -u)
 PLATFORM=$(uname -m)
-REPO="rjbaw/emacs-latex"
 
 print_usage() {
     printf \
@@ -36,26 +35,30 @@ while getopts 'hbfpmcdg' flag; do
   esac
 done
 
+if [[ "$gpu" == "true" ]]; then 
+    dc='docker compose -f docker-compose-gpu.yml';
+else
+    dc='docker compose';
+fi
+
 if [[ "$build" == 'true' ]]; then
     ARGS='';
     if [[ "$nocache" == 'true' ]]; then
 	ARGS+='--no-cache ';
     fi
+    if [[ "$gpu" == 'true' ]]; then
+	#ARGS+='--build-arg image=nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04 ';
+	ARGS+='--build-arg image=nvidia/cuda:12.2.2-cudnn8-devel-ubuntu22.04 ';
+    else
+	ARGS+='--build-arg image=ubuntu:22.04 ';
+    fi
+    if [[ "$push" == 'true' ]]; then
+   	    ARGS+='--push ';
+    fi
     if [[ "$multi" == 'true' ]]; then
-        if [[ "$push" == 'true' ]]; then
-       	    ARGS+='--push ';
-        fi
         docker buildx bake --set *.platform=linux/arm64,linux/amd64 $ARGS;
     else
-        docker compose build $ARGS;
-        if [[ "$push" == 'true' ]]; then
-	    docker tag "$REPO:latest" "$REPO:manifest-$PLATFORM";
-    	    docker push "$REPO:manifest-$PLATFORM";
-	    docker manifest create -a "$REPO:latest" \
-		    "$REPO:manifest-x86_64" \
-		    "$REPO:manifest-aarch64";
-    	    docker manifest push "$REPO:latest";
-	fi
+        $dc build $ARGS;
     fi
 elif [[ "$clean" == 'true' ]]; then
     if [[ "$nocache" == 'true' ]]; then
@@ -67,7 +70,7 @@ elif [[ "$clean" == 'true' ]]; then
     fi
 else
     if [[ "$down" == "true" ]]; then 
-        docker compose down;
+        $dc down;
 	exit;
     fi
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -81,11 +84,11 @@ else
         echo "not supported";
         exit 1
     fi
+    $dc up -d;
     if [[ "$gpu" == "true" ]]; then 
-        docker compose -f docker-compose-gpu.yml up -d;
+        docker exec -it emacs-latex-gpu bash
     else
-        docker compose up -d;
+        docker exec -it emacs-latex bash
     fi
-    docker exec -it emacs-latex bash
 fi
 

@@ -1,8 +1,8 @@
 version: "3"
 services:
   emacs-latex:
-    image: rjbaw/emacs-latex:latest
-    container_name: emacs-latex
+    image: rjbaw/emacs-latex-gpu:latest
+    container_name: emacs-latex-gpu
     build:
       context: .
       dockerfile: Dockerfile
