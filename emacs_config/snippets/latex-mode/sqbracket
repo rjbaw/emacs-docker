@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: sq bracket
+# key: bs
+# --
+\left[ $0 \right]

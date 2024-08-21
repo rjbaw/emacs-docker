@@ -60,16 +60,18 @@ RUN apt-get install -y --no-install-recommends \
     libx11-dev \
     libncurses5-dev \
     libgtk-4-dev \
-    libwebkit2gtk-4.0-dev \
+    libwebkit2gtk-4.1-dev \
+    libtree-sitter-dev \
     webkit2gtk-driver \
     libvterm-dev \
-    libgccjit-11-dev \
+    libgccjit-13-dev \
     libmagickcore-dev \
     libmagick++-dev \
     gnutls-dev \
     dvisvgm \
     automake \
     autoconf \
+    clang-format \
     libtool \
     xclip \
     scrot \
@@ -89,7 +91,7 @@ RUN apt-get install -y --no-install-recommends \
     iproute2 \
     ispell \
     libosmesa6-dev \
-    libgl1-mesa-glx \
+    libgl1 \
     libglfw3 \
     patchelf
 
@@ -102,7 +104,7 @@ RUN cp /tmp/fonts/* /usr/local/share/fonts/
 RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml
 
 RUN cd /tmp && \
-    curl -L https://ftp.gnu.org/gnu/emacs/emacs-29.3.tar.gz -so emacs.tar.gz &&\
+    curl -L https://ftp.gnu.org/gnu/emacs/emacs-29.4.tar.gz -so emacs.tar.gz &&\
     tar xf emacs.tar.gz &&\
     cd emacs* &&\
     ./configure \
@@ -116,6 +118,7 @@ RUN cd /tmp && \
     --with-rsvg \
     --with-xwidgets \
     --with-harfbuzz \
+    --with-tree-sitter \
     CFLAGS='-O3 -march=native' &&\
     make -j $(nproc) &&\
     make install
@@ -126,7 +129,8 @@ RUN cd /usr/local/bin &&\
     python3 -m venv /opt/emacs &&\                                             
     chmod +x /opt/emacs/bin/activate  &&\                                      
     . /opt/emacs/bin/activate &&\  
-    pip install -U pip jupyterlab jupyterlab-vim numpy matplotlib scipy sympy cvxpy torch tqdm
+    pip install -U pip setuptools wheel &&\
+    pip install -U jupyterlab jupyterlab-vim numpy matplotlib scipy sympy cvxpy torch tqdm
 
 RUN userdel `id -nu $DUID` || true
 RUN groupadd -g $DGID $DGROUP || true;

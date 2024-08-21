@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: abs bracket
+# key: ba
+# --
+\left| $0 \right|

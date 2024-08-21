@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: curly bracket
+# key: bc
+# --
+\left\\{ $0 \right\\}

@@ -219,6 +219,11 @@
   (setq dap-auto-configure-features '(sessions locals controls tooltip))
   :ensure t)
 
+(use-package cmake-mode)
+(use-package clang-format)
+(use-package format-all)
+(use-package pdf-tools)
+
 (use-package which-key
   :config
   (which-key-mode))

@@ -47,10 +47,9 @@ if [[ "$build" == 'true' ]]; then
 	ARGS+='--no-cache ';
     fi
     if [[ "$gpu" == 'true' ]]; then
-	#ARGS+='--build-arg image=nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04 ';
-	ARGS+='--build-arg image=nvidia/cuda:12.2.2-cudnn8-devel-ubuntu22.04 ';
+	ARGS+='--build-arg image=nvidia/cuda:12.6.0-cudnn-devel-ubuntu24.04 ';
     else
-	ARGS+='--build-arg image=ubuntu:22.04 ';
+	ARGS+='--build-arg image=ubuntu:24.04 ';
     fi
     if [[ "$push" == 'true' ]]; then
    	    ARGS+='--push ';
