@@ -3,9 +3,9 @@
 # key: hw_template
 # --
 
-#+TITLE: ${1:Homework}
-#+SUBTITLE: ${2:Course Code}
-#+AUTHOR: ${3:Name}
+# +TITLE: ${1:Homework}
+# +SUBTITLE: ${2:Course Code}
+# +AUTHOR: ${3:Name}
 #+LATEX_CLASS: article
 #+LATEX_CLASS_OPTIONS: [a4paper]
 #+LATEX_HEADER: \usepackage{mathrsfs}

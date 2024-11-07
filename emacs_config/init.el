@@ -220,8 +220,11 @@
   :ensure t)
 
 (use-package cmake-mode)
+(use-package cuda-mode)
 (use-package clang-format)
-(use-package format-all)
+(use-package format-all
+  :commands format-all-mode
+  :hook (prog-mode . format-all-mode))
 (use-package pdf-tools)
 
 (use-package which-key
@@ -276,16 +279,12 @@
 ;  :config (smartparens-global-mode t))
 ;(electric-pair-mode t)
 
-(use-package highlight-indent-guides
-  :config
-  (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
-  (setq highlight-indent-guides-method 'character))
-
 (use-package jupyter)
 (use-package ess)
 (use-package ein)
 (use-package julia-mode)
-;(use-package matlab-mode)
+(use-package yaml-mode)
+(use-package matlab-mode)
 (use-package rust-mode)
 (use-package org-download
   :hook (dired-mode . org-download-enable)

@@ -67,6 +67,8 @@ RUN apt-get install -y --no-install-recommends \
     libgccjit-13-dev \
     libmagickcore-dev \
     libmagick++-dev \
+    tk-dev \
+    libreadline-dev \
     gnutls-dev \
     dvisvgm \
     automake \
@@ -97,7 +99,6 @@ RUN apt-get install -y --no-install-recommends \
 
 RUN npm install -g n &&\
     n stable
-#    npm install -g npm
 
 COPY fonts /tmp/fonts/
 RUN cp /tmp/fonts/* /usr/local/share/fonts/
@@ -123,28 +124,16 @@ RUN cd /tmp && \
     make -j $(nproc) &&\
     make install
 
-RUN cd /usr/local/bin &&\
-    ln -s /usr/bin/python3 python &&\
-    ln -s /usr/bin/pip3 pip &&\
-    python3 -m venv /opt/emacs &&\                                             
-    chmod +x /opt/emacs/bin/activate  &&\                                      
-    . /opt/emacs/bin/activate &&\  
-    pip install -U pip setuptools wheel &&\
-    pip install -U jupyterlab jupyterlab-vim numpy matplotlib scipy sympy cvxpy torch tqdm
-
 RUN userdel `id -nu $DUID` || true
 RUN groupadd -g $DGID $DGROUP || true;
 RUN useradd -r -m -d /workspace -s /bin/bash -g $DGID -G sudo -u $DUID $DUSER;
 RUN passwd -d $DUSER
-RUN chown -R $DUID:$DGID /opt/emacs/
+RUN ulimit -c 0
 
-RUN echo "export JULIA_NUM_THREADS=`nproc`" >> /workspace/.bashrc &&\
-    echo "export TERM=xterm-256color" >> /workspace/.bashrc &&\
-    echo "alias em='emacsclient -c -n -a \"\"'" >> /workspace/.bashrc &&\
-    echo "alias et='emacsclient -t -nw -a \"\"'" >> /workspace/.bashrc &&\
-    echo "alias jb='jupyter-lab --ip=0.0.0.0'" >> /workspace/.bashrc &&\
-    echo "source \"/opt/emacs/bin/activate\"" >> /workspace/.bashrc &&\
-    echo "source \"/workspace/.cargo/env\"" >> /workspace/.bashrc
+RUN cd /usr/local/bin &&\
+    ln -s /usr/bin/python3 python &&\
+    ln -s /usr/bin/pip3 pip 
+
 COPY emacs_config /workspace/.emacs.d
 RUN chown -R $DUSER. /workspace
 
@@ -154,6 +143,29 @@ RUN rm -rf /var/cache/apt
 RUN rm -r /tmp/*
 
 USER $DUSER
+SHELL ["/bin/bash", "-c"]
+
+RUN curl https://pyenv.run | bash
+
+RUN echo "export JULIA_NUM_THREADS=`nproc`" >> $HOME/.bashrc &&\
+    echo "export TERM=xterm-256color" >> $HOME/.bashrc &&\
+    echo "alias em='emacsclient -c -n -a \"\"'" >> $HOME/.bashrc &&\
+    echo "alias et='emacsclient -t -nw -a \"\"'" >> $HOME/.bashrc &&\
+    echo "alias jb='jupyter-lab --ip=0.0.0.0'" >> $HOME/.bashrc &&\
+    echo "source \"/workspace/.cargo/env\"" >> $HOME/.bashrc &&\
+    echo "export PYENV_ROOT=\"\$HOME/.pyenv\"" >> $HOME/.bashrc &&\
+    echo "[[ -d \$PYENV_ROOT/bin ]] && export PATH=\"\$PYENV_ROOT/bin:\$PATH\"" >> $HOME/.bashrc &&\
+    echo "eval \"\$(pyenv init -)\"" >> $HOME/.bashrc &&\
+    echo "eval \"\$(pyenv virtualenv-init -)\"" >> $HOME/.bashrc &&\
+    echo "pyenv activate emacs" >> $HOME/.bashrc
+
+RUN export PYENV_ROOT="$HOME/.pyenv" &&\
+    export PATH="$PYENV_ROOT/bin:$PATH" &&\
+    eval "$(pyenv init -)" &&\
+    eval "$(pyenv virtualenv-init -)" &&\
+    pyenv virtualenv emacs &&\                                             
+    pyenv activate emacs &&\  
+    pip install -U pip setuptools wheel pipreqs jupyterlab jupyterlab-vim numpy matplotlib scipy sympy cvxpy torch tqdm
 
 RUN curl -fsSL https://install.julialang.org | sh -s -- -y && \
     . /workspace/.bashrc &&\
