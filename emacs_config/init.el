@@ -1,67 +1,52 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
+
 (global-hl-line-mode 1)
-(line-number-mode 1)
-(visual-line-mode 1)
+(global-display-line-numbers-mode 1)
+(global-visual-line-mode 1)
+(setq-default indent-tabs-mode nil)
 
 (setq inhibit-startup-message t
       visible-bell t
       c-default-style "linux"
       c-basic-offset 4
+      native-comp-async-report-warnings-errors nil
       default-frame-alist '((font . "DM Mono"))
       custom-file "~/.emacs.d/custom-file.el"
-      native-comp-async-report-warnings-errors nil
-      exec-path (append exec-path '("/usr/bin"))
       )
-
-(setq-default indent-tabs-mode nil)
+(load custom-file 'noerror 'nomessage)
+(add-to-list 'exec-path "/usr/bin")
 
 (require 'package)
 (add-to-list 'package-archives
-	     '("melpa" . "https://melpa.org/packages/") t)
+             '("melpa" . "https://melpa.org/packages/") t)
 (add-to-list 'package-archives
 	     '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-(add-to-list 'package-archives
-	     '("org" . "https://orgmode.org/elpa/") t)
 (add-to-list 'package-archives
 	     '("gnu" . "https://elpa.gnu.org/packages/") t)
 (package-initialize)
 (package-refresh-contents)
 
-;(unless (package-installed-p 'use-package)
-;  (package-refresh-contents)
-;  (package-install 'use-package))
-;(eval-when-compile
-;  (require 'use-package))
-(unless (package-installed-p 'quelpa)
-  (with-temp-buffer
-    (url-insert-file-contents "https://github.com/quelpa/quelpa/raw/master/quelpa.el")
-    (eval-buffer)
-    (quelpa-self-upgrade)))
-(quelpa
- '(quelpa-use-package
-   :fetcher git
-   :url "https://github.com/quelpa/quelpa-use-package.git"))
-(quelpa
- '(lsp-julia
-   :fetcher github
-   :repo "gdkrmr/lsp-julia"
-   :files (:defaults "languageserver")))
-(require 'quelpa-use-package)
-;(setq use-package-ensure-function 'quelpa)
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(eval-when-compile
+  (require 'use-package))
 (setq use-package-always-ensure t)
+
+(use-package undo-fu)
 
 (use-package evil
   :init
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
-  (setq evil-undo-system 'undo-redo)
+  (setq evil-undo-system 'undo-fu)
   (setq evil-want-C-u-scroll t)
   (setq evil-esc-delay 0)
   :config
-  (define-key evil-normal-state-map "\C-v" 'evil-visual-block)
   (evil-mode t)
+  (define-key evil-normal-state-map "\C-v" 'evil-visual-block)
   :ensure t)
 
 (use-package evil-collection
@@ -71,8 +56,7 @@
   :ensure t)
 
 (use-package vimish-fold
-  :ensure t
-  :after evil)
+  :ensure t)
 
 (use-package evil-vimish-fold
   :ensure t
@@ -84,17 +68,7 @@
 (use-package key-chord
   :config
   (key-chord-define evil-insert-state-map "yy" 'evil-normal-state)
-  (key-chord-mode t)
-  :ensure t)
-
-(use-package spinner
-  :quelpa
-  (spinner
-   :fetcher github
-   :repo "Malabarba/spinner.el")
-  )
-
-(use-package vterm
+  (key-chord-mode 1)
   :ensure t)
 
 (use-package org
@@ -109,12 +83,12 @@
   (setq org-src-tab-acts-natively t)
   (setq org-edit-src-content-indentation 0)
   (setq org-confirm-babel-evaluate nil)
-  (setq org-pretty-entities t)
+  ;; (setq org-pretty-entities t)
   (setq org-hide-emphasis-markers t)
   (setq org-adapt-indentation nil)
   (setq org-image-actual-width nil)
-;(setq org-export-babel-evaluate nil)
-; imagemagick(lualatex only), dvipng(unicode not supported), dvisvgm(xelatex only)
+  ;; (setq org-export-babel-evaluate nil)
+  ;; imagemagick(lualatex only), dvipng(unicode not supported), dvisvgm(xelatex only)
   (setq org-preview-latex-default-process 'imagemagick)
   (setq org-latex-inputenc-alist '(("utf8")))
   (setq org-latex-minted-options '(("breaklines" "true")
@@ -157,7 +131,6 @@
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
-;    (julia . t)
      (latex . t)
      (shell . t)
      (python . t)
@@ -169,8 +142,14 @@
   (require 'org-tempo))
 (use-package org-ref)
 (use-package org-bullets
+  :hook (org-mode . org-bullets-mode)
+  )
+
+(use-package org-download
+  :hook ((dired-mode . org-download-enable)
+         (org-mode . org-download-enable))
   :config
-  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+  (setq-default org-download-screenshot-method "scrot -s %s")
   )
 
 (use-package org-fragtog
@@ -180,43 +159,25 @@
   :ensure t
   :config
   (load-theme 'spacemacs-dark t))
+(use-package spaceline
+  :demand t
+  :init
+  (setq powerline-default-separator 'arrow-fade)
+  :config
+  (require 'spaceline-config)
+  (spaceline-spacemacs-theme))
+
+(use-package spinner)
+
+(use-package vterm
+  :ensure t)
+
 
 (use-package magit
   :ensure t)
 
-(use-package lsp-ui
-  :quelpa
-  (lsp-ui
-   :fetcher github
-   :repo "emacs-lsp/lsp-ui")
-  :config
-  (lsp-ui-peek-enable 1)
-  (lsp-ui-peek-show-directory 1)
-  (lsp-ui-doc-enable 1)
-  :commands lsp-ui-mode)
-
-(use-package helm-lsp
-  :ensure t
-  :commands helm-lsp-workspace-symbol)
-
-(use-package tree-sitter
-  :ensure t)
-
-(use-package lsp-treemacs
-  :quelpa
-  (lsp-treemacs
-   :fetcher github
-   :repo "emacs-lsp/lsp-treemacs")
-  :commands
-  (lsp-treemacs-errors-list)
-  :init
-  (lsp-treemacs-sync-mode 1))
 
 (use-package dap-mode
-  :config
-  (add-hook 'dap-stopped-hook
-	    (lambda (arg) (call-interactively #'dap-hydra)))
-  (setq dap-auto-configure-features '(sessions locals controls tooltip))
   :ensure t)
 
 (use-package cmake-mode)
@@ -251,12 +212,8 @@
   ((LaTeX-mode) . texfrag-auto-mode)
   )
 
-(use-package auctex-latexmk
-  :ensure t
-  :init
-  (auctex-latexmk-setup)
-  )
-
+(use-package auctex-latexmk)
+(auctex-latexmk-setup)
 
 (use-package yasnippet
   :config
@@ -265,19 +222,13 @@
 (use-package yasnippet-snippets
   :ensure t)
 
-(use-package flycheck)
-
-(use-package spaceline
-  :demand t
-  :init
-  (setq powerline-default-separator 'arrow-fade)
+(use-package flycheck
   :config
-  (require 'spaceline-config)
-  (spaceline-spacemacs-theme))
+  (global-flycheck-mode 1))
 
-;(use-package smartparens
-;  :config (smartparens-global-mode t))
-;(electric-pair-mode t)
+;; (use-package smartparens
+;;   :config (smartparens-global-mode t))
+;; (electric-pair-mode t)
 
 (use-package jupyter)
 (use-package ess)
@@ -285,12 +236,10 @@
 (use-package julia-mode)
 (use-package yaml-mode)
 (use-package matlab-mode)
+(use-package dockerfile-mode)
+(use-package docker-compose-mode)
+
 (use-package rust-mode)
-(use-package org-download
-  :hook (dired-mode . org-download-enable)
-  :config
-  (setq-default org-download-screenshot-method "scrot -s %s")
-  )
 
 (use-package ob-async
   :config
@@ -302,22 +251,35 @@
 
 (use-package lsp-mode
   :init (setq lsp-keymap-prefix "C-c l")
-  :hook
-  (
-   (sh-mode . lsp)
-   (python-mode . lsp)
-   (julia-mode . lsp)
-   (rust-mode . lsp)
-   (lsp-mode . lsp-enable-which-key-integration)
-   )
+  :hook ((prog-mode . lsp-deferred)
+         (lsp-mode . lsp-enable-which-key-integration))
   :commands (lsp lsp-deferred)
   :config
   (define-key lsp-mode-map [remap xref-find-apropos] #'helm-lsp-workspace-symbol)
-
-  (with-eval-after-load 'lsp-mode
-    (setq lsp-diagnostics-modeline-scope :project)
-    (add-hook 'lsp-managed-mode-hook 'lsp-diagnostics-modeline-mode))
+  (setq lsp-diagnostics-modeline-scope :project)
+  (setq lsp-warn-no-matched-clients nil)
+  (add-hook 'lsp-managed-mode-hook 'lsp-diagnostics-modeline-mode)
   :ensure t)
+
+(use-package lsp-ui
+  :ensure t
+  :commands lsp-ui-mode
+  :after lsp-mode
+  :init
+  (setq lsp-ui-doc-enable t)
+  (setq lsp-ui-peek-enable t)
+  (setq lsp-ui-peek-show-directory t)
+  )
+
+(use-package helm-lsp
+  :ensure t
+  :commands helm-lsp-workspace-symbol)
+
+(use-package lsp-treemacs
+  :commands
+  (lsp-treemacs-errors-list)
+  :init
+  (lsp-treemacs-sync-mode 1))
 
 (use-package lsp-pyright
   :ensure t
@@ -326,12 +288,16 @@
   :config (setq lsp-pyright-venv-path "/opt/emacs/")
   )
 
+(use-package tree-sitter
+  :config (global-tree-sitter-mode 1)
+  :ensure t)
+
 (use-package texfrag
   :init
   (setq texfrag-scale 1.2)
   :ensure t
   :config
-  (texfrag-global-mode))
+  (texfrag-global-mode 1))
 
 (defvar texfrag-auto-mode nil)
 (defun texfrag-auto--evaluate-function ()
