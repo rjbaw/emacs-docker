@@ -1,0 +1,13 @@
+setuptools
+wheel
+pipreqs
+jupyterlab
+jupyterlab-vim
+numpy
+matplotlib
+scipy
+sympy
+cvxpy
+torch
+tqdm
+cmake-format

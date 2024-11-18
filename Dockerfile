@@ -95,7 +95,9 @@ RUN apt-get install -y --no-install-recommends \
     libosmesa6-dev \
     libgl1 \
     libglfw3 \
-    patchelf
+    patchelf \
+    bear \
+    clangd
 
 RUN npm install -g n &&\
     n stable
@@ -159,13 +161,14 @@ RUN echo "export JULIA_NUM_THREADS=`nproc`" >> $HOME/.bashrc &&\
     echo "eval \"\$(pyenv virtualenv-init -)\"" >> $HOME/.bashrc &&\
     echo "pyenv activate emacs" >> $HOME/.bashrc
 
+COPY requirements.txt /tmp/
 RUN export PYENV_ROOT="$HOME/.pyenv" &&\
     export PATH="$PYENV_ROOT/bin:$PATH" &&\
     eval "$(pyenv init -)" &&\
     eval "$(pyenv virtualenv-init -)" &&\
     pyenv virtualenv emacs &&\                                             
     pyenv activate emacs &&\  
-    pip install -U pip setuptools wheel pipreqs jupyterlab jupyterlab-vim numpy matplotlib scipy sympy cvxpy torch tqdm
+    pip install -r /tmp/requirements.txt
 
 RUN curl -fsSL https://install.julialang.org | sh -s -- -y && \
     . /workspace/.bashrc &&\

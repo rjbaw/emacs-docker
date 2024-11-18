@@ -1,3 +1,4 @@
+;;; Emacs Config Init File
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
@@ -13,8 +14,11 @@
       c-basic-offset 4
       native-comp-async-report-warnings-errors nil
       default-frame-alist '((font . "DM Mono"))
-      custom-file "~/.emacs.d/custom-file.el"
-      )
+      custom-file "~/.emacs.d/custom-file.el")
+
+(setq gc-cons-threshold (* 100 1024 1024)
+      read-process-output-max (* 1024 1024))
+
 (load custom-file 'noerror 'nomessage)
 (add-to-list 'exec-path "/usr/bin")
 
@@ -22,11 +26,8 @@
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
 (add-to-list 'package-archives
-	     '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-(add-to-list 'package-archives
-	     '("gnu" . "https://elpa.gnu.org/packages/") t)
+             '("gnu" . "https://elpa.gnu.org/packages/") t)
 (package-initialize)
-(package-refresh-contents)
 
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -62,8 +63,7 @@
   :ensure t
   :after vimish-fold
   :hook
-  ((prog-mode conf-mode text-mode) . evil-vimish-fold-mode)
-  )
+  ((prog-mode conf-mode text-mode) . evil-vimish-fold-mode))
 
 (use-package key-chord
   :config
@@ -88,45 +88,46 @@
   (setq org-adapt-indentation nil)
   (setq org-image-actual-width nil)
   ;; (setq org-export-babel-evaluate nil)
-  ;; imagemagick(lualatex only), dvipng(unicode not supported), dvisvgm(xelatex only)
   (setq org-preview-latex-default-process 'imagemagick)
   (setq org-latex-inputenc-alist '(("utf8")))
   (setq org-latex-minted-options '(("breaklines" "true")
-				   ("breakanywhere" "true")))
+                                   ("breakanywhere" "true")))
   (setq org-latex-listings 'minted)
   (setq org-latex-packages-alist '(("" "minted" t)
-				   ("" "tcolorbox" t))) ;unicode-math
-					; Backends: pdflatex, xelatex, lualatex (Specify in LATEX_COMPILER)
+                                   ("" "tcolorbox" t))) ;unicode-math
   (setq org-latex-pdf-process
-	'("latexmk -pdflatex='%latex -shell-escape -interaction nonstopmode' -pdf -output-directory=%o %f"))
+        '("latexmk -pdflatex='%latex -shell-escape -interaction nonstopmode' -pdf -output-directory=%o %f"))
   (setq org-preview-latex-process-alist
-	'((dvipng :programs ("latex" "dvipng")
-		  :description "dvi > png"
-		  :message "you need to install the programs: latex and dvipng."
-		  :image-input-type "dvi"
-		  :image-output-type "png"
-		  :image-size-adjust (1.0 . 1.0)
-		  :latex-compiler ("latex -interaction nonstopmode -output-directory %o %f")
-		  :image-converter ("dvipng -D %D -T tight -o %O %f"))
-	  (dvisvgm :programs ("latex" "dvisvgm")
-		   :description "dvi > svg"
-		   :message "you need to install the programs: latex and dvisvgm."
-		   :use-xcolor t
-		   :image-input-type "xdv"
-		   :image-output-type "svg"
-		   :image-size-adjust (1.7 . 1.5)
-		   :latex-compiler ("xelatex -no-pdf -interaction nonstopmode -output-directory %o %f")
-		   :image-converter ("dvisvgm %f -n -b min -c %S -o %O"))
-	  (imagemagick :programs ("latex" "convert")
-		       :description "pdf > png"
-		       :message "you need to install the programs: latex and imagemagick."
-		       :use-xcolor t
-		       :image-input-type "pdf"
-		       :image-output-type "png"
-		       :image-size-adjust (1.0 . 1.0)
-		       :latex-compiler ("lualatex -interaction nonstopmode -output-directory %o %f")
-		       :image-converter ("convert -density %D -trim -antialias %f -quality 100 %O"))))
-  (font-lock-add-keywords 'org-mode '(("^ *\\([-]\\) " (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+        '((dvipng :programs ("latex" "dvipng")
+                  :description "dvi > png"
+                  :message "you need to install the programs: latex and dvipng."
+                  :image-input-type "dvi"
+                  :image-output-type "png"
+                  :image-size-adjust (1.0 . 1.0)
+                  :latex-compiler ("latex -interaction nonstopmode -output-directory %o %f")
+                  :image-converter ("dvipng -D %D -T tight -o %O %f"))
+          (dvisvgm :programs ("latex" "dvisvgm")
+                   :description "dvi > svg"
+                   :message "you need to install the programs: latex and dvisvgm."
+                   :use-xcolor t
+                   :image-input-type "xdv"
+                   :image-output-type "svg"
+                   :image-size-adjust (1.7 . 1.5)
+                   :latex-compiler ("xelatex -no-pdf -interaction nonstopmode -output-directory %o %f")
+                   :image-converter ("dvisvgm %f -n -b min -c %S -o %O"))
+          (imagemagick :programs ("latex" "convert")
+                       :description "pdf > png"
+                       :message "you need to install the programs: latex and imagemagick."
+                       :use-xcolor t
+                       :image-input-type "pdf"
+                       :image-output-type "png"
+                       :image-size-adjust (1.0 . 1.0)
+                       :latex-compiler ("lualatex -interaction nonstopmode -output-directory %o %f")
+                       :image-converter ("convert -density %D -trim -antialias %f -quality 100 %O"))))
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 ()
+                                    (compose-region (match-beginning 1) (match-end 1) "•"))))))
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
   (org-babel-do-load-languages
    'org-babel-load-languages
@@ -135,30 +136,28 @@
      (shell . t)
      (python . t)
      (jupyter . t)))
-  :ensure t
-  )
+  :ensure t)
 
 (when (version<= "9.2" (org-version))
   (require 'org-tempo))
+
 (use-package org-ref)
+
 (use-package org-bullets
-  :hook (org-mode . org-bullets-mode)
-  )
+  :hook (org-mode . org-bullets-mode))
 
 (use-package org-download
   :hook ((dired-mode . org-download-enable)
          (org-mode . org-download-enable))
   :config
-  (setq-default org-download-screenshot-method "scrot -s %s")
-  )
+  (setq-default org-download-screenshot-method "scrot -s %s"))
 
-(use-package org-fragtog
-  :ensure t)
+(use-package org-fragtog)
 
 (use-package spacemacs-theme
-  :ensure t
   :config
   (load-theme 'spacemacs-dark t))
+
 (use-package spaceline
   :demand t
   :init
@@ -168,29 +167,17 @@
   (spaceline-spacemacs-theme))
 
 (use-package spinner)
-
-(use-package vterm
-  :ensure t)
-
-
-(use-package magit
-  :ensure t)
-
-
-(use-package dap-mode
-  :ensure t)
-
+(use-package vterm)
+(use-package magit)
 (use-package cmake-mode)
 (use-package cuda-mode)
 (use-package clang-format)
 (use-package format-all
   :commands format-all-mode
-  :hook (prog-mode . format-all-mode))
+  :hook (prog-mode . (lambda ()
+                       (format-all-mode)
+                       (format-all-ensure-formatter))))
 (use-package pdf-tools)
-
-(use-package which-key
-  :config
-  (which-key-mode))
 
 (use-package company
   :config
@@ -202,6 +189,18 @@
   :config
   (add-to-list 'company-backends 'company-math-symbols-unicode))
 
+;; (use-package smartparens
+;;   :config (smartparens-global-mode t))
+;; (electric-pair-mode t)
+
+(use-package yasnippet
+  :config
+  (yas-global-mode 1)
+  :ensure t)
+
+(use-package yasnippet-snippets
+  :ensure t)
+
 (use-package auctex
   :ensure t
   :init
@@ -209,26 +208,12 @@
   (setq-default TeX-engine 'luatex)
   (setq-default preview-scale-function 1.5)
   :hook
-  ((LaTeX-mode) . texfrag-auto-mode)
-  )
+  ((LaTeX-mode) . texfrag-auto-mode))
 
-(use-package auctex-latexmk)
-(auctex-latexmk-setup)
-
-(use-package yasnippet
+(use-package auctex-latexmk
+  :after auctex
   :config
-  (yas-global-mode 1)
-  :ensure t)
-(use-package yasnippet-snippets
-  :ensure t)
-
-(use-package flycheck
-  :config
-  (global-flycheck-mode 1))
-
-;; (use-package smartparens
-;;   :config (smartparens-global-mode t))
-;; (electric-pair-mode t)
+  (auctex-latexmk-setup))
 
 (use-package jupyter)
 (use-package ess)
@@ -238,16 +223,14 @@
 (use-package matlab-mode)
 (use-package dockerfile-mode)
 (use-package docker-compose-mode)
-
 (use-package rust-mode)
 
 (use-package ob-async
   :config
   (setq ob-async-no-async-languages-alist '("jupyter-python" "jupyter-julia"))
   (add-hook 'ob-async-pre-execute-src-block-hook
-	    '(lambda ()
-	       (setq inferior-julia-program-name "/usr/bin/julia")))
-  )
+            '(lambda ()
+               (setq inferior-julia-program-name "/usr/bin/julia"))))
 
 (use-package lsp-mode
   :init (setq lsp-keymap-prefix "C-c l")
@@ -258,8 +241,10 @@
   (define-key lsp-mode-map [remap xref-find-apropos] #'helm-lsp-workspace-symbol)
   (setq lsp-diagnostics-modeline-scope :project)
   (setq lsp-warn-no-matched-clients nil)
-  (add-hook 'lsp-managed-mode-hook 'lsp-diagnostics-modeline-mode)
-  :ensure t)
+  (setq lsp-enable-suggest-server-download t)
+  (setq lsp-auto-install-server t)
+  (setq lsp-idle-delay 0.1)
+  (add-hook 'lsp-managed-mode-hook 'lsp-diagnostics-modeline-mode))
 
 (use-package lsp-ui
   :ensure t
@@ -268,12 +253,29 @@
   :init
   (setq lsp-ui-doc-enable t)
   (setq lsp-ui-peek-enable t)
-  (setq lsp-ui-peek-show-directory t)
-  )
+  (setq lsp-ui-peek-show-directory t))
+
+(use-package helm
+  :init
+  (setq treemacs-space-between-root-nodes nil)
+  :bind
+  (:map global-map
+	([remap find-file] . helm-find-files)
+	([remap execute-extended-command] . helm-M-x)
+	([remap switch-to-buffer] . helm-mini))
+  :config
+  (helm-mode 1))
+
 
 (use-package helm-lsp
-  :ensure t
   :commands helm-lsp-workspace-symbol)
+
+(use-package projectile)
+
+(use-package hydra)
+
+(use-package treemacs
+  :custom (treemacs-space-between-root-nodes nil))
 
 (use-package lsp-treemacs
   :commands
@@ -281,12 +283,26 @@
   :init
   (lsp-treemacs-sync-mode 1))
 
+(use-package flycheck
+  :config
+  (global-flycheck-mode 1))
+
+(use-package dap-mode)
+
+(use-package avy)
+
+(use-package which-key
+  :hook ((c-mode c++-mode) . lsp)
+  :config
+  (which-key-mode))
+
+(use-package helm-xref)
+
 (use-package lsp-pyright
   :ensure t
   :after lsp-mode
   :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp)))
-  :config (setq lsp-pyright-venv-path "/opt/emacs/")
-  )
+  :config (setq lsp-pyright-venv-path "/opt/emacs/"))
 
 (use-package tree-sitter
   :config (global-tree-sitter-mode 1)
@@ -295,7 +311,6 @@
 (use-package texfrag
   :init
   (setq texfrag-scale 1.2)
-  :ensure t
   :config
   (texfrag-global-mode 1))
 
