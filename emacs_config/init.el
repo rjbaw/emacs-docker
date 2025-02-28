@@ -81,6 +81,8 @@
   (key-chord-define evil-insert-state-map "yy" 'evil-normal-state)
   (key-chord-mode 1))
 
+(use-package sqlite3)
+
 (use-package org
   :hook
   ((org-mode . texfrag-auto-mode)
@@ -122,13 +124,13 @@
                              (0 (prog1 ()
                                   (compose-region (match-beginning 1) (match-end 1) "•"))))))
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
+  (setq org-agenda-files '("~/org"))
+  (setq org-agenda-span 7)
+  (setq org-roam-directory "~/org-roam")
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
      (latex . t)
-     (sh . t)
-     (c . t)
-     (c++ . t)
      (python . t)
      (jupyter . t)))
   :ensure t)
@@ -148,19 +150,6 @@
   (setq-default org-download-screenshot-method "scrot -s %s"))
 
 (use-package org-fragtog)
-
-(use-package org-roam
-  :ensure t
-  :init
-  (setq org-roam-directory "~/org-roam")
-  :config
-  (org-roam-db-autosync-mode))
-
-(use-package org-agenda
-  :after org
-  :config
-  (setq org-agenda-files '("~/org"))
-  (setq org-agenda-span 7))
 
 (use-package spacemacs-theme
   :config
@@ -200,7 +189,10 @@
   :config
   (setq company-idle-delay 0.0)
   (setq company-minimum-prefix-length 1)
+  (setq company-selection-wrap-around t)
+  (add-to-list 'company-backends 'company-capf)
   (define-key company-active-map (kbd "TAB") #'company-complete-selection)
+  (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
   (global-company-mode t))
 
 (use-package company-math
@@ -258,14 +250,18 @@
          (lsp-mode . lsp-enable-which-key-integration))
   :commands (lsp lsp-deferred)
   :config
-  (define-key lsp-mode-map [remap xref-find-apropos] #'helm-lsp-workspace-symbol)
   (setq lsp-diagnostics-modeline-scope :project)
   (setq lsp-warn-no-matched-clients nil)
   (setq lsp-enable-suggest-server-download t)
   (setq lsp-auto-install-server t)
   (setq lsp-idle-delay 0.1)
   (setq lsp-clients-clangd-args '("--background-index"))
-  (add-hook 'lsp-managed-mode-hook 'lsp-diagnostics-modeline-mode))
+  (setq lsp-completion-provider :capf)
+  (add-to-list 'company-backends 'company-capf)
+  (add-hook 'lsp-managed-mode-hook 'lsp-diagnostics-modeline-mode)
+  (define-key lsp-mode-map (kbd "TAB") 'company-complete-selection)
+  (define-key lsp-mode-map [remap xref-find-apropos] #'helm-lsp-workspace-symbol)
+  )
 
 (use-package lsp-ui
   :commands lsp-ui-mode
@@ -298,21 +294,14 @@
 	 ("M-," . helm-lsp-find-references)))
 
 (use-package projectile
-  :ensure t
   :config
   (projectile-mode +1)
   (setq projectile-completion-system 'helm))
 
 (use-package helm-projectile
-  :ensure t
   :after (helm projectile)
   :config
   (helm-projectile-on))
-
-(use-package doxymacs
-  :ensure t
-  :config
-  (add-hook 'c++-mode-hook 'doxymacs-mode))
 
 (use-package hydra)
 

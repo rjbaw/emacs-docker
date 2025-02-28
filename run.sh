@@ -41,53 +41,78 @@ else
     dc='docker compose';
 fi
 
-if [[ "$build" == 'true' ]]; then
-    ARGS='';
+get_build_args() {
+    local args=""
     if [[ "$nocache" == 'true' ]]; then
-	ARGS+='--no-cache ';
+        args+="--no-cache "
     fi
+
     if [[ "$gpu" == 'true' ]]; then
-	ARGS+='--build-arg image=nvidia/cuda:12.8.0-cudnn-devel-ubuntu24.04 ';
+        args+="--build-arg image=nvidia/cuda:12.8.0-cudnn-devel-ubuntu24.04 "
     else
-	ARGS+='--build-arg image=ubuntu:24.04 ';
+        args+="--build-arg image=ubuntu:24.04 "
     fi
+
     if [[ "$push" == 'true' ]]; then
-   	    ARGS+='--push ';
+        args+="--push "
     fi
+
+    echo "$args"
+}
+
+build() {
+    local args
+    args=$(get_build_args)
+
     if [[ "$multi" == 'true' ]]; then
-        docker buildx bake --set *.platform=linux/arm64,linux/amd64 $ARGS;
+        docker buildx bake --set *.platform=linux/arm64,linux/amd64 $args
     else
-        $dc build $ARGS;
+        $dc build $args
     fi
-elif [[ "$clean" == 'true' ]]; then
+}
+
+clean() {
     if [[ "$nocache" == 'true' ]]; then
-       	yes | docker system prune -a;
-        yes | docker buildx prune -a;
+        yes | docker system prune -a
+        yes | docker buildx prune -a
     else
-       	yes | docker system prune;
-        yes | docker buildx prune;
+        yes | docker system prune
+        yes | docker buildx prune
     fi
+}
+
+
+if [[ "$build" == 'true' ]]; then
+    build
+elif [[ "$clean" == 'true' ]]; then
+    clean
 else
     if [[ "$down" == "true" ]]; then 
         $dc down;
-	exit;
+	exit
     fi
-    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        xhost +localhost;
-        DISPLAY=$DISPLAY;
-    elif [[ "$OSTYPE" == "darwin"* ]]; then
-        # https://gist.github.com/cschiewek/246a244ba23da8b9f0e7b11a68bf3285?permalink_comment_id=3477013#gistcomment-3477013
-        xhost +localhost;
-        DISPLAY=host.docker.internal:0;
-    else
-        echo "not supported";
-        exit 1
-    fi
+
+    case "$OSTYPE" in
+        linux-gnu*)
+            xhost +localhost
+            DISPLAY=$DISPLAY
+            ;;
+        darwin*)
+	    # https://gist.github.com/cschiewek/246a244ba23da8b9f0e7b11a68bf3285?permalink_comment_id=3477013#gistcomment-3477013
+            xhost +localhost
+            DISPLAY=host.docker.internal:0
+            ;;
+        *)
+            echo "Platform not supported."
+            exit 1
+            ;;
+    esac
+
     $dc up -d;
+
     if [[ "$gpu" == "true" ]]; then 
         docker exec -it emacs-latex-gpu bash
     else
         docker exec -it emacs-latex bash
     fi
 fi
-
