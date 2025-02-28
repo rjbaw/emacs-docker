@@ -91,6 +91,7 @@ RUN apt-get install -y --no-install-recommends \
     fzf \
     bash-completion \
     iproute2 \
+    iputils-ping \
     ispell \
     libosmesa6-dev \
     libgl1 \

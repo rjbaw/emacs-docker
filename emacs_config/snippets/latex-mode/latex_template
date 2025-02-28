@@ -15,6 +15,11 @@
 \usepackage{tcolorbox}
 \usepackage{mathrsfs}
 \usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{tikz-cd}
+\usepackage{siunitx}
+\usepackage{hyperref}
+\usepackage[backend=biber]{biblatex}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsfonts}
@@ -35,6 +40,7 @@
 \usepackage{pgfplots}
 \usepackage{multicol}
 \usepackage{fancyhdr}
+\pgfplotsset{compat=1.18}
 \newtheorem*{sol}{Solution}
 \newtheorem*{claim}{Claim}
 \newtheorem{problem}{Problem}
@@ -51,8 +57,7 @@
 \rhead{$3}
 \author{$4}
 \date{}
-\title{$2\\\medskip
-\large $5}
+\title{$2}
 
 \begin{document}
 

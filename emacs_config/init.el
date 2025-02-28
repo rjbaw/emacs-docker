@@ -19,7 +19,8 @@
 (setq gc-cons-threshold (* 100 1024 1024)
       read-process-output-max (* 1024 1024))
 
-(load custom-file 'noerror 'nomessage)
+(when (file-exists-p custom-file)
+  (load custom-file 'noerror 'nomessage))
 (add-to-list 'exec-path "/usr/bin")
 
 (require 'package)
@@ -27,7 +28,6 @@
              '("melpa" . "https://melpa.org/packages/") t)
 (add-to-list 'package-archives
              '("gnu" . "https://elpa.gnu.org/packages/") t)
-(package-initialize)
 
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -36,31 +36,42 @@
   (require 'use-package))
 (setq use-package-always-ensure t)
 
-(use-package undo-fu)
+(use-package auto-package-update
+  :config
+  (auto-package-update-maybe))
+
+(use-package undo-tree
+  :config
+  (global-undo-tree-mode)
+  (global-set-key (kbd "C-x u") 'undo-tree-visualize)
+  (setq undo-tree-history-directory-alist `(("." . ,(expand-file-name "undo" user-emacs-directory)))))
 
 (use-package evil
   :init
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
-  (setq evil-undo-system 'undo-fu)
+  (setq evil-undo-system 'undo-tree)
   (setq evil-want-C-u-scroll t)
   (setq evil-esc-delay 0)
   :config
   (evil-mode t)
   (define-key evil-normal-state-map "\C-v" 'evil-visual-block)
-  :ensure t)
+  (define-key evil-normal-state-map "u" 'undo-tree-undo)
+  (define-key evil-normal-state-map (kbd "C-r") 'undo-tree-redo))
+
+(use-package evil-surround
+  :after evil
+  :config
+  (global-evil-surround-mode 1))
 
 (use-package evil-collection
   :after evil
   :config
-  (evil-collection-init)
-  :ensure t)
+  (evil-collection-init))
 
-(use-package vimish-fold
-  :ensure t)
+(use-package vimish-fold)
 
 (use-package evil-vimish-fold
-  :ensure t
   :after vimish-fold
   :hook
   ((prog-mode conf-mode text-mode) . evil-vimish-fold-mode))
@@ -68,8 +79,7 @@
 (use-package key-chord
   :config
   (key-chord-define evil-insert-state-map "yy" 'evil-normal-state)
-  (key-chord-mode 1)
-  :ensure t)
+  (key-chord-mode 1))
 
 (use-package org
   :hook
@@ -83,57 +93,42 @@
   (setq org-src-tab-acts-natively t)
   (setq org-edit-src-content-indentation 0)
   (setq org-confirm-babel-evaluate nil)
-  ;; (setq org-pretty-entities t)
   (setq org-hide-emphasis-markers t)
   (setq org-adapt-indentation nil)
   (setq org-image-actual-width nil)
+  (setq org-pretty-entities nil)
   ;; (setq org-export-babel-evaluate nil)
   (setq org-preview-latex-default-process 'imagemagick)
-  (setq org-latex-inputenc-alist '(("utf8")))
+  (setq org-latex-inputenc-alist '(("utf8" . "inputenc")))
   (setq org-latex-minted-options '(("breaklines" "true")
                                    ("breakanywhere" "true")))
   (setq org-latex-listings 'minted)
   (setq org-latex-packages-alist '(("" "minted" t)
                                    ("" "tcolorbox" t))) ;unicode-math
   (setq org-latex-pdf-process
-        '("latexmk -pdflatex='%latex -shell-escape -interaction nonstopmode' -pdf -output-directory=%o %f"))
-  (setq org-preview-latex-process-alist
-        '((dvipng :programs ("latex" "dvipng")
-                  :description "dvi > png"
-                  :message "you need to install the programs: latex and dvipng."
-                  :image-input-type "dvi"
-                  :image-output-type "png"
-                  :image-size-adjust (1.0 . 1.0)
-                  :latex-compiler ("latex -interaction nonstopmode -output-directory %o %f")
-                  :image-converter ("dvipng -D %D -T tight -o %O %f"))
-          (dvisvgm :programs ("latex" "dvisvgm")
-                   :description "dvi > svg"
-                   :message "you need to install the programs: latex and dvisvgm."
-                   :use-xcolor t
-                   :image-input-type "xdv"
-                   :image-output-type "svg"
-                   :image-size-adjust (1.7 . 1.5)
-                   :latex-compiler ("xelatex -no-pdf -interaction nonstopmode -output-directory %o %f")
-                   :image-converter ("dvisvgm %f -n -b min -c %S -o %O"))
-          (imagemagick :programs ("latex" "convert")
-                       :description "pdf > png"
-                       :message "you need to install the programs: latex and imagemagick."
-                       :use-xcolor t
-                       :image-input-type "pdf"
-                       :image-output-type "png"
-                       :image-size-adjust (1.0 . 1.0)
-                       :latex-compiler ("lualatex -interaction nonstopmode -output-directory %o %f")
-                       :image-converter ("convert -density %D -trim -antialias %f -quality 100 %O"))))
+      '("latexmk -pdf -pdflatex='lualatex -shell-escape -interaction nonstopmode' -output-directory=%o %f"))
+(setq org-preview-latex-process-alist
+      '((imagemagick :programs ("lualatex" "convert")
+                     :description "pdf > png"
+                     :message "you need to install the programs: lualatex and imagemagick."
+                     :use-xcolor t
+                     :image-input-type "pdf"
+                     :image-output-type "png"
+                     :image-size-adjust (1.0 . 1.0)
+                     :latex-compiler ("lualatex -interaction nonstopmode -output-directory %o %f")
+                     :image-converter ("convert -density %D -trim -antialias %f -quality 100 %O"))))
   (font-lock-add-keywords 'org-mode
                           '(("^ *\\([-]\\) "
                              (0 (prog1 ()
-                                    (compose-region (match-beginning 1) (match-end 1) "•"))))))
+                                  (compose-region (match-beginning 1) (match-end 1) "•"))))))
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
      (latex . t)
-     (shell . t)
+     (sh . t)
+     (c . t)
+     (c++ . t)
      (python . t)
      (jupyter . t)))
   :ensure t)
@@ -154,6 +149,19 @@
 
 (use-package org-fragtog)
 
+(use-package org-roam
+  :ensure t
+  :init
+  (setq org-roam-directory "~/org-roam")
+  :config
+  (org-roam-db-autosync-mode))
+
+(use-package org-agenda
+  :after org
+  :config
+  (setq org-agenda-files '("~/org"))
+  (setq org-agenda-span 7))
+
 (use-package spacemacs-theme
   :config
   (load-theme 'spacemacs-dark t))
@@ -166,23 +174,33 @@
   (require 'spaceline-config)
   (spaceline-spacemacs-theme))
 
+(use-package magit
+  :config
+  (setq magit-status-buffer-switch-function 'switch-to-buffer))
+
+(use-package git-gutter
+  :config
+  (global-git-gutter-mode +1))
+
 (use-package spinner)
 (use-package vterm)
-(use-package magit)
 (use-package cmake-mode)
+(use-package markdown-mode)
 (use-package cuda-mode)
 (use-package clang-format)
+(use-package pdf-tools)
+
 (use-package format-all
   :commands format-all-mode
   :hook (prog-mode . (lambda ()
                        (format-all-mode)
                        (format-all-ensure-formatter))))
-(use-package pdf-tools)
 
 (use-package company
   :config
   (setq company-idle-delay 0.0)
   (setq company-minimum-prefix-length 1)
+  (define-key company-active-map (kbd "TAB") #'company-complete-selection)
   (global-company-mode t))
 
 (use-package company-math
@@ -195,14 +213,11 @@
 
 (use-package yasnippet
   :config
-  (yas-global-mode 1)
-  :ensure t)
+  (yas-global-mode 1))
 
-(use-package yasnippet-snippets
-  :ensure t)
+(use-package yasnippet-snippets)
 
 (use-package auctex
-  :ensure t
   :init
   (unless (fboundp 'TeX-latex-mode) (defalias 'TeX-latex-mode 'latex-mode))
   (setq-default TeX-engine 'luatex)
@@ -221,6 +236,7 @@
 (use-package julia-mode)
 (use-package yaml-mode)
 (use-package matlab-mode)
+(use-package docker)
 (use-package dockerfile-mode)
 (use-package docker-compose-mode)
 (use-package rust-mode)
@@ -231,6 +247,10 @@
   (add-hook 'ob-async-pre-execute-src-block-hook
             '(lambda ()
                (setq inferior-julia-program-name "/usr/bin/julia"))))
+
+(use-package which-key
+  :config
+  (which-key-mode))
 
 (use-package lsp-mode
   :init (setq lsp-keymap-prefix "C-c l")
@@ -244,10 +264,10 @@
   (setq lsp-enable-suggest-server-download t)
   (setq lsp-auto-install-server t)
   (setq lsp-idle-delay 0.1)
+  (setq lsp-clients-clangd-args '("--background-index"))
   (add-hook 'lsp-managed-mode-hook 'lsp-diagnostics-modeline-mode))
 
 (use-package lsp-ui
-  :ensure t
   :commands lsp-ui-mode
   :after lsp-mode
   :init
@@ -257,25 +277,48 @@
 
 (use-package helm
   :init
-  (setq treemacs-space-between-root-nodes nil)
+  (helm-mode 1)
   :bind
   (:map global-map
-	([remap find-file] . helm-find-files)
-	([remap execute-extended-command] . helm-M-x)
-	([remap switch-to-buffer] . helm-mini))
+        ([remap find-file] . helm-find-files)
+        ([remap execute-extended-command] . helm-M-x)
+        ([remap switch-to-buffer] . helm-mini))
   :config
+  (setq helm-M-x-fuzzy-match t)
+  (setq helm-recentf-fuzzy-match t)
+  (define-key helm-map (kbd "TAB") 'helm-execute-persistent-action)
   (helm-mode 1))
 
-
 (use-package helm-lsp
-  :commands helm-lsp-workspace-symbol)
+  :after lsp-mode
+  :commands helm-lsp-workspace-symbol
+  :config
+  (setq helm-lsp-sources '(helm-lsp-source-symbol helm-lsp-source-type))
+  :bind (("M-." . helm-lsp-find-definition)
+	 ("M-," . helm-lsp-find-references)))
 
-(use-package projectile)
+(use-package projectile
+  :ensure t
+  :config
+  (projectile-mode +1)
+  (setq projectile-completion-system 'helm))
+
+(use-package helm-projectile
+  :ensure t
+  :after (helm projectile)
+  :config
+  (helm-projectile-on))
+
+(use-package doxymacs
+  :ensure t
+  :config
+  (add-hook 'c++-mode-hook 'doxymacs-mode))
 
 (use-package hydra)
 
 (use-package treemacs
-  :custom (treemacs-space-between-root-nodes nil))
+  :custom
+  (treemacs-space-between-root-nodes nil))
 
 (use-package lsp-treemacs
   :commands
@@ -287,26 +330,26 @@
   :config
   (global-flycheck-mode 1))
 
+(use-package flyspell
+  :hook ((text-mode . flyspell-mode)
+         (prog-mode . flyspell-prog-mode)))
+
 (use-package dap-mode)
 
 (use-package avy)
 
-(use-package which-key
-  :hook ((c-mode c++-mode) . lsp)
-  :config
-  (which-key-mode))
-
 (use-package helm-xref)
 
 (use-package lsp-pyright
-  :ensure t
   :after lsp-mode
   :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp)))
   :config (setq lsp-pyright-venv-path "/opt/emacs/"))
 
 (use-package tree-sitter
-  :config (global-tree-sitter-mode 1)
-  :ensure t)
+  :config
+  (global-tree-sitter-mode 1))
+
+(use-package tree-sitter-langs)
 
 (use-package texfrag
   :init
@@ -320,13 +363,15 @@
     (unless (texfrag-auto--process-running-p "Preview-LaTeX")
       (preview-buffer))))
 (defun texfrag-auto--process-running-p (process-name)
-  (cl-some (lambda (proc)
+  (seq-some (lambda (proc)
              (and (string= (process-name proc) process-name)
                   (process-live-p proc)))
            (process-list)))
 (defun texfrag-auto--after-save ()
   (when texfrag-auto-mode
-    (texfrag-auto--evaluate-function)))
+    (condition-case err
+        (texfrag-auto--evaluate-function)
+      (error (message "Error in texfrag-auto mode: %s" err)))))
 (define-minor-mode texfrag-auto-mode
   "TexFrag-Auto"
   :lighter " TexFrag-Auto"

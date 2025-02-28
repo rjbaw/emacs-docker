@@ -10,4 +10,5 @@ sympy
 cvxpy
 torch
 tqdm
+black
 cmake-format
