@@ -3,6 +3,8 @@ FROM $image
 
 LABEL maintainer="rjbaw"
 ENV DEBIAN_FRONTEND=noninteractive 
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
 
 ARG DUSER
 ARG DGROUP
@@ -18,6 +20,7 @@ ENV DGROUP=$DGROUP
 
 RUN apt-get update && apt-get dist-upgrade -y 
 RUN apt-get install -y --no-install-recommends \
+    locales \
     devscripts \
     software-properties-common \
     git \
@@ -92,12 +95,16 @@ RUN apt-get install -y --no-install-recommends \
     iproute2 \
     iputils-ping \
     ispell \
+    hunspell \
     libosmesa6-dev \
     libgl1 \
     libglfw3 \
     patchelf \
     bear \
-    clangd
+    clangd \
+    lldb
+
+RUN locale-gen en_US.UTF-8
 
 RUN npm install -g n &&\
     n stable

@@ -81,7 +81,8 @@
   (key-chord-define evil-insert-state-map "yy" 'evil-normal-state)
   (key-chord-mode 1))
 
-(use-package sqlite3)
+(use-package sqlite3
+  :defer t)
 
 (use-package org
   :hook
@@ -173,7 +174,6 @@
 
 (use-package spinner)
 (use-package vterm)
-(use-package cmake-mode)
 (use-package markdown-mode)
 (use-package cuda-mode)
 (use-package clang-format)
@@ -181,9 +181,12 @@
 
 (use-package format-all
   :commands format-all-mode
-  :hook (prog-mode . (lambda ()
+  :hook ((prog-mode . (lambda ()
+                        (format-all-mode)
+                        (format-all-ensure-formatter)))
+         (c++-mode . (lambda ()
                        (format-all-mode)
-                       (format-all-ensure-formatter))))
+                       (format-all-ensure-formatter)))))
 
 (use-package company
   :config
@@ -191,8 +194,8 @@
   (setq company-minimum-prefix-length 1)
   (setq company-selection-wrap-around t)
   (add-to-list 'company-backends 'company-capf)
-  (define-key company-active-map (kbd "TAB") #'company-complete-selection)
-  (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
+  (define-key company-mode-map [remap indent-for-tab-command]
+	      #'company-indent-or-complete-common)
   (global-company-mode t))
 
 (use-package company-math
@@ -257,6 +260,15 @@
   (setq lsp-idle-delay 0.1)
   (setq lsp-clients-clangd-args '("--background-index"))
   (setq lsp-completion-provider :capf)
+  (setq lsp-inlay-hint-enable t
+        lsp-inlay-hint-show-parameter-names t
+        lsp-inlay-hint-show-variable-name t
+	lsp-inlay-hint-show-constructor-arguments t)
+  (setq lsp-clients-clangd-args
+	'("--background-index" 
+	  "--header-insertion=never"
+	  "--header-insertion-decorators=0"
+	  ))
   (add-to-list 'company-backends 'company-capf)
   (add-hook 'lsp-managed-mode-hook 'lsp-diagnostics-modeline-mode)
   (define-key lsp-mode-map (kbd "TAB") 'company-complete-selection)
@@ -282,7 +294,6 @@
   :config
   (setq helm-M-x-fuzzy-match t)
   (setq helm-recentf-fuzzy-match t)
-  (define-key helm-map (kbd "TAB") 'helm-execute-persistent-action)
   (helm-mode 1))
 
 (use-package helm-lsp
@@ -320,10 +331,43 @@
   (global-flycheck-mode 1))
 
 (use-package flyspell
+  :config
+  (setq ispell-program-name "hunspell")
+  (setq ispell-dictionary "en_US")
   :hook ((text-mode . flyspell-mode)
          (prog-mode . flyspell-prog-mode)))
 
-(use-package dap-mode)
+(use-package dap-mode
+  :config
+  (require 'dap-lldb)
+  (require 'dap-gdb-lldb)
+  (dap-auto-configure-mode 1)
+  )
+(use-package dap-mode
+  :after lsp-mode
+  :config
+  (dap-ui-mode 1)
+  (dap-tooltip-mode 1)
+  (tooltip-mode 1)  
+  (require 'dap-ui)
+  (dap-ui-controls-mode 1)
+  (require 'dap-lldb)
+  (dap-register-debug-template
+   "C++ LLDB"
+   (list :type "lldb"
+         :request "launch"
+         :name "LLDB::Run"
+         :gdbpath "lldb" 
+         :target nil
+         :cwd nil))
+  (dap-auto-configure-mode 1))
+
+
+(use-package cmake-mode)
+
+(use-package cmake-ide
+  :config
+  (cmake-ide-setup))
 
 (use-package avy)
 
@@ -336,9 +380,10 @@
 
 (use-package tree-sitter
   :config
+  (setq treesit-language-source-alist
+	'((c   "https://github.com/tree-sitter/tree-sitter-c")
+	  (cpp "https://github.com/tree-sitter/tree-sitter-cpp")))
   (global-tree-sitter-mode 1))
-
-(use-package tree-sitter-langs)
 
 (use-package texfrag
   :init
@@ -370,3 +415,9 @@
   (if texfrag-auto-mode
       (add-hook 'after-save-hook 'texfrag-auto--after-save nil 'local)
     (remove-hook 'after-save-hook 'texfrag-auto--after-save 'local)))
+
+(when (fboundp 'treesit-install-language-grammar)
+  (unless (treesit-language-available-p 'c)
+    (treesit-install-language-grammar 'c))
+  (unless (treesit-language-available-p 'cpp)
+    (treesit-install-language-grammar 'cpp)))
