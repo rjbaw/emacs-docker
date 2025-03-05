@@ -49,6 +49,7 @@ RUN apt-get install -y --no-install-recommends \
     texlive-latex-extra \
     texlive-plain-generic \
     texlive-fonts-extra \
+    texlive-bibtex-extra \
     texinfo \
     texlive-xetex \
     texlive-luatex \
