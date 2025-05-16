@@ -109,17 +109,17 @@
   (setq org-latex-packages-alist '(("" "minted" t)
                                    ("" "tcolorbox" t))) ;unicode-math
   (setq org-latex-pdf-process
-      '("latexmk -pdf -pdflatex='lualatex -shell-escape -interaction nonstopmode' -output-directory=%o %f"))
-(setq org-preview-latex-process-alist
-      '((imagemagick :programs ("lualatex" "convert")
-                     :description "pdf > png"
-                     :message "you need to install the programs: lualatex and imagemagick."
-                     :use-xcolor t
-                     :image-input-type "pdf"
-                     :image-output-type "png"
-                     :image-size-adjust (1.0 . 1.0)
-                     :latex-compiler ("lualatex -interaction nonstopmode -output-directory %o %f")
-                     :image-converter ("convert -density %D -trim -antialias %f -quality 100 %O"))))
+        '("latexmk -pdf -pdflatex='lualatex -shell-escape -interaction nonstopmode' -output-directory=%o %f"))
+  (setq org-preview-latex-process-alist
+        '((imagemagick :programs ("lualatex" "convert")
+                       :description "pdf > png"
+                       :message "you need to install the programs: lualatex and imagemagick."
+                       :use-xcolor t
+                       :image-input-type "pdf"
+                       :image-output-type "png"
+                       :image-size-adjust (1.0 . 1.0)
+                       :latex-compiler ("lualatex -interaction nonstopmode -output-directory %o %f")
+                       :image-converter ("convert -density %D -trim -antialias %f -quality 100 %O"))))
   (font-lock-add-keywords 'org-mode
                           '(("^ *\\([-]\\) "
                              (0 (prog1 ()
@@ -250,7 +250,9 @@
 (use-package lsp-mode
   :init (setq lsp-keymap-prefix "C-c l")
   :hook ((prog-mode . lsp-deferred)
-         (lsp-mode . lsp-enable-which-key-integration))
+         (lsp-mode . lsp-enable-which-key-integration)
+         (lsp-managed-mode . lsp-modeline-diagnostics-mode)
+         (lsp-after-initialize . lsp-append-trigger-characters))
   :commands (lsp lsp-deferred)
   :config
   (setq lsp-diagnostics-modeline-scope :project)
@@ -258,21 +260,23 @@
   (setq lsp-enable-suggest-server-download t)
   (setq lsp-auto-install-server t)
   (setq lsp-idle-delay 0.1)
-  (setq lsp-clients-clangd-args '("--background-index"))
   (setq lsp-completion-provider :capf)
   (setq lsp-inlay-hint-enable t
         lsp-inlay-hint-show-parameter-names t
         lsp-inlay-hint-show-variable-name t
 	lsp-inlay-hint-show-constructor-arguments t)
   (setq lsp-clients-clangd-args
-	'("--background-index" 
+	'("--background-index"
 	  "--header-insertion=never"
 	  "--header-insertion-decorators=0"
 	  ))
   (add-to-list 'company-backends 'company-capf)
-  (add-hook 'lsp-managed-mode-hook 'lsp-diagnostics-modeline-mode)
   (define-key lsp-mode-map (kbd "TAB") 'company-complete-selection)
   (define-key lsp-mode-map [remap xref-find-apropos] #'helm-lsp-workspace-symbol)
+  (defun lsp-append-trigger-characters ()
+    (setq-local lsp-completion-trigger-characters
+                (delete-dups
+                 (append lsp-completion-trigger-characters '("->")))))
   )
 
 (use-package lsp-ui
@@ -348,7 +352,7 @@
   :config
   (dap-ui-mode 1)
   (dap-tooltip-mode 1)
-  (tooltip-mode 1)  
+  (tooltip-mode 1)
   (require 'dap-ui)
   (dap-ui-controls-mode 1)
   (require 'dap-lldb)
@@ -357,7 +361,7 @@
    (list :type "lldb"
          :request "launch"
          :name "LLDB::Run"
-         :gdbpath "lldb" 
+         :gdbpath "lldb"
          :target nil
          :cwd nil))
   (dap-auto-configure-mode 1))
@@ -398,9 +402,9 @@
       (preview-buffer))))
 (defun texfrag-auto--process-running-p (process-name)
   (seq-some (lambda (proc)
-             (and (string= (process-name proc) process-name)
-                  (process-live-p proc)))
-           (process-list)))
+              (and (string= (process-name proc) process-name)
+                   (process-live-p proc)))
+            (process-list)))
 (defun texfrag-auto--after-save ()
   (when texfrag-auto-mode
     (condition-case err

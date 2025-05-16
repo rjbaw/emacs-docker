@@ -160,7 +160,7 @@ RUN echo "export JULIA_NUM_THREADS=`nproc`" >> $HOME/.bashrc &&\
     echo "export TERM=xterm-256color" >> $HOME/.bashrc &&\
     echo "alias em='emacsclient -c -n -a \"\"'" >> $HOME/.bashrc &&\
     echo "alias et='emacsclient -t -nw -a \"\"'" >> $HOME/.bashrc &&\
-    echo "alias jb='jupyter-lab --ip=0.0.0.0'" >> $HOME/.bashrc &&\
+    echo "alias jb='jupyter-lab --ip=0.0.0.0 --NotebookApp.allow_credentials=Tru'" >> $HOME/.bashrc &&\
     echo "source \"/workspace/.cargo/env\"" >> $HOME/.bashrc &&\
     echo "export PYENV_ROOT=\"\$HOME/.pyenv\"" >> $HOME/.bashrc &&\
     echo "[[ -d \$PYENV_ROOT/bin ]] && export PATH=\"\$PYENV_ROOT/bin:\$PATH\"" >> $HOME/.bashrc &&\
@@ -175,6 +175,7 @@ RUN export PYENV_ROOT="$HOME/.pyenv" &&\
     eval "$(pyenv virtualenv-init -)" &&\
     pyenv virtualenv emacs &&\                                             
     pyenv activate emacs &&\  
+    pip install --force-reinstall torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128 &&\
     pip install -r /tmp/requirements.txt
 
 RUN curl -fsSL https://install.julialang.org | sh -s -- -y && \

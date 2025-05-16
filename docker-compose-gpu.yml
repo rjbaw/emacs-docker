@@ -22,8 +22,8 @@ services:
       - $HOME/.Xauthority:/workspace/.Xauthority:rw
       - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro 
       - $HOME/:/workspace/home 
-    ports:
-      - 8888:8888
+    #ports:
+    #  - 8888:8888
     tty: true
     deploy:
       resources:
