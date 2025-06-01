@@ -2,6 +2,7 @@ setuptools
 wheel
 pipreqs
 jupyterlab-vim
+semgrep
 numpy
 matplotlib
 scipy

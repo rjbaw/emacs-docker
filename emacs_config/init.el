@@ -251,8 +251,7 @@
   :init (setq lsp-keymap-prefix "C-c l")
   :hook ((prog-mode . lsp-deferred)
          (lsp-mode . lsp-enable-which-key-integration)
-         (lsp-managed-mode . lsp-modeline-diagnostics-mode)
-         (lsp-after-initialize . lsp-append-trigger-characters))
+         (lsp-managed-mode . lsp-modeline-diagnostics-mode))
   :commands (lsp lsp-deferred)
   :config
   (setq lsp-diagnostics-modeline-scope :project)
@@ -273,10 +272,6 @@
   (add-to-list 'company-backends 'company-capf)
   (define-key lsp-mode-map (kbd "TAB") 'company-complete-selection)
   (define-key lsp-mode-map [remap xref-find-apropos] #'helm-lsp-workspace-symbol)
-  (defun lsp-append-trigger-characters ()
-    (setq-local lsp-completion-trigger-characters
-                (delete-dups
-                 (append lsp-completion-trigger-characters '("->")))))
   )
 
 (use-package lsp-ui
