@@ -22,6 +22,7 @@ services:
       - $HOME/.Xauthority:/workspace/.Xauthority:rw
       - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro 
       - $HOME/:/workspace/home 
+      - ${EXT_VOL:-/dev/null}:/workspace/ext
     #ports:
     #  - 8888:8888
     tty: true

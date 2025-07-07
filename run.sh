@@ -48,7 +48,7 @@ get_build_args() {
     fi
 
     if [[ "$gpu" == 'true' ]]; then
-        args+="--build-arg image=nvidia/cuda:12.8.0-cudnn-devel-ubuntu24.04 "
+        args+="--build-arg image=nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04 "
     else
         args+="--build-arg image=ubuntu:24.04 "
     fi
