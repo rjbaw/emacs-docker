@@ -154,22 +154,30 @@ RUN rm -r /tmp/*
 USER $DUSER
 SHELL ["/bin/bash", "-c"]
 
-RUN mkdir -p ~/miniconda3 &&\
-    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh &&\
-    bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 &&\
-    rm ~/miniconda3/miniconda.sh
-
-RUN source ~/miniconda3/bin/activate && conda init --all
+RUN curl https://pyenv.run | bash
 
 RUN echo "export JULIA_NUM_THREADS=`nproc`" >> $HOME/.bashrc &&\
     echo "export TERM=xterm-256color" >> $HOME/.bashrc &&\
     echo "alias em='emacsclient -c -n -a \"\"'" >> $HOME/.bashrc &&\
     echo "alias et='emacsclient -t -nw -a \"\"'" >> $HOME/.bashrc &&\
     echo "alias jb='jupyter-lab --ip=0.0.0.0 --NotebookApp.allow_credentials=Tru'" >> $HOME/.bashrc &&\
+    echo "export PYENV_ROOT=\"\$HOME/.pyenv\"" >> $HOME/.bashrc &&\
+    echo "[[ -d \$PYENV_ROOT/bin ]] && export PATH=\"\$PYENV_ROOT/bin:\$PATH\"" >> $HOME/.bashrc &&\
+    echo "eval \"\$(pyenv init -)\"" >> $HOME/.bashrc &&\
+    echo "eval \"\$(pyenv virtualenv-init -)\"" >> $HOME/.bashrc &&\
+    echo "pyenv activate base" >> $HOME/.bashrc &&\
     echo "source \"/workspace/.cargo/env\"" >> $HOME/.bashrc
 
 COPY requirements.txt /tmp/
-RUN source ~/miniconda3/bin/activate &&\
+
+RUN export PYENV_ROOT="$HOME/.pyenv" &&\
+    export PATH="$PYENV_ROOT/bin:$PATH" &&\
+    eval "$(pyenv init -)" &&\
+    eval "$(pyenv virtualenv-init -)" &&\
+    export CONDA_PLUGINS_AUTO_ACCEPT_TOS=yes &&\
+    pyenv install miniconda3-latest &&\
+    pyenv virtualenv base &&\                                             
+    pyenv activate base &&\ 
     pip install --force-reinstall torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128 &&\
     pip install -r /tmp/requirements.txt
 
