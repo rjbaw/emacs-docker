@@ -1,6 +1,6 @@
 services:
   emacs-latex:
-    image: rjbaw/emacs-latex:latest
+    image: ghcr.io/rjbaw/emacs-latex:latest
     container_name: emacs-latex
     user: $DUID:$DGID
     build:

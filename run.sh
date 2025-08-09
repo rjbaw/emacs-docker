@@ -1,10 +1,11 @@
 #!/bin/bash
 set -ae
 
-DUSER=docker-user
-DGROUP=docker-user
-DGID=$(id -g)
-DUID=$(id -u)
+DUSER=${DUSER:-docker-user}
+DGROUP=${DGROUP:-docker-user}
+DGID=${DGID:-$(id -g)}
+DUID=${DUID:-$(id -u)}
+export DUSER DGROUP DGID DUID
 PLATFORM=$(uname -m)
 
 print_usage() {
@@ -17,11 +18,12 @@ print_usage() {
     -c clean
 	-f clean all
     -g gpu
+    -n dry run (print commands)
     -d close instance
     \n"
 }
 
-while getopts 'hbfpmcdg' flag; do
+while getopts 'hbfpmcdgn' flag; do
   case "${flag}" in
     b) build='true' ;;
     f) nocache='true' ;;
@@ -30,6 +32,7 @@ while getopts 'hbfpmcdg' flag; do
     c) clean='true' ;;
     d) down='true' ;;
     g) gpu='true' ;;
+    n) dryrun='true' ;;
     h | *) print_usage
        exit 1 ;;
   esac
@@ -49,8 +52,10 @@ get_build_args() {
 
     if [[ "$gpu" == 'true' ]]; then
         args+="--build-arg image=nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04 "
+        args+="--build-arg WITH_GPU=true "
     else
         args+="--build-arg image=ubuntu:24.04 "
+        args+="--build-arg WITH_GPU=false "
     fi
 
     if [[ "$push" == 'true' ]]; then
@@ -65,9 +70,57 @@ build() {
     args=$(get_build_args)
 
     if [[ "$multi" == 'true' ]]; then
-        docker buildx bake --set *.platform=linux/arm64,linux/amd64 $args
+        local compose_file target bake_args
+        target="emacs-latex"
+        if [[ "$gpu" == 'true' ]]; then
+            compose_file="docker-compose-gpu.yml"
+            bake_args="--set ${target}.args.image=nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04 --set ${target}.args.WITH_GPU=true "
+        else
+            compose_file="docker-compose.yml"
+            bake_args="--set ${target}.args.image=ubuntu:24.04 --set ${target}.args.WITH_GPU=false "
+        fi
+
+        bake_args+="--set ${target}.platform=linux/amd64 --set ${target}.platform=linux/arm64 "
+
+        if [[ "$nocache" == 'true' ]]; then
+            bake_args+="--no-cache "
+        fi
+        if [[ "$push" == 'true' ]]; then
+            bake_args+="--push "
+        fi
+
+        if [[ "$dryrun" == 'true' ]]; then
+            echo docker buildx bake -f "$compose_file" $target $bake_args
+        else
+            docker buildx bake -f "$compose_file" $target $bake_args
+        fi
     else
-        $dc build $args
+        if [[ "$push" == 'true' ]]; then
+            local compose_file target bake_args
+            target="emacs-latex"
+            if [[ "$gpu" == 'true' ]]; then
+                compose_file="docker-compose-gpu.yml"
+                bake_args="--set ${target}.args.image=nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04 --set ${target}.args.WITH_GPU=true "
+            else
+                compose_file="docker-compose.yml"
+                bake_args="--set ${target}.args.image=ubuntu:24.04 --set ${target}.args.WITH_GPU=false "
+            fi
+            bake_args+="--set ${target}.platform=linux/amd64 --push "
+            if [[ "$nocache" == 'true' ]]; then
+                bake_args+="--no-cache "
+            fi
+            if [[ "$dryrun" == 'true' ]]; then
+                echo docker buildx bake -f "$compose_file" $target $bake_args
+            else
+                docker buildx bake -f "$compose_file" $target $bake_args
+            fi
+        else
+            if [[ "$dryrun" == 'true' ]]; then
+                echo $dc build $args
+            else
+                $dc build $args
+            fi
+        fi
     fi
 }
 

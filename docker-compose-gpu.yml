@@ -1,6 +1,6 @@
 services:
   emacs-latex:
-    image: rjbaw/emacs-latex-gpu:latest
+    image: ghcr.io/rjbaw/emacs-latex-gpu:latest
     container_name: emacs-latex-gpu
     build:
       context: .

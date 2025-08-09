@@ -2,9 +2,9 @@
 Opinionated Emacs with orgmode, latex, and batteries included features in Docker Compose.
 
 ## Core Components
-- Emacs 29.3 with Gtk GUI  
+- Emacs with Gtk GUI  
 - PDFLatex, XeLaTeX, LuaLaTeX.  
-- Python 3, Julia, Jupyter Notebook  
+- Python 3, Jupyter Notebook  
 
 ## Screenshots
 ### Jupyter Blocks
@@ -50,3 +50,9 @@ Included `yasnippet-snippets` and few more in `snippets/` folder.
 Jupyter Code Blocks: `<js` & `TAB`  
 Code execution: C-C  
 Code Interupt: C-TAB or C-g  
+
+## Images
+- CPU: `ghcr.io/rjbaw/emacs-latex:latest`
+- GPU: `ghcr.io/rjbaw/emacs-latex-gpu:latest`
+
+Images are built and published by GitHub Actions on pushes to `main` and tags.
