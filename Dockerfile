@@ -1,7 +1,8 @@
-ARG image
+ARG image=ubuntu-24.04
 FROM $image
 
 LABEL maintainer="rjbaw"
+LABEL org.opencontainers.image.source=https://github.com/rjbaw/org-latex-docker
 ENV DEBIAN_FRONTEND=noninteractive 
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
@@ -109,6 +110,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     patchelf \
     bear \
     clangd \
+    clang-tidy \
+    tree-sitter-cli \
     lldb && rm -rf /var/lib/apt/lists/*
 
 RUN locale-gen en_US.UTF-8
@@ -122,7 +125,8 @@ COPY fonts /tmp/fonts/
 RUN cp /tmp/fonts/* /usr/local/share/fonts/
 RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml
 
-RUN cd /tmp && \
+RUN PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH &&\
+    cd /tmp && \
     curl -L https://ftp.gnu.org/gnu/emacs/emacs-30.1.tar.gz -so emacs.tar.gz &&\
     tar xf emacs.tar.gz &&\
     cd emacs* &&\

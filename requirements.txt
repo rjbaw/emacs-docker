@@ -10,4 +10,6 @@ cvxpy
 torch
 tqdm
 black
-cmake-format
+pylint
+flake8
+pylint

@@ -8,6 +8,18 @@
 (global-visual-line-mode 1)
 (setq-default indent-tabs-mode nil)
 
+(global-set-key (kbd "M-.") #'xref-find-definitions)
+(global-set-key (kbd "M-?") #'xref-find-references)
+(global-set-key (kbd "C-c l s") #'helm-lsp-workspace-symbol)
+
+(when (fboundp 'c++-ts-mode)
+  (add-to-list 'major-mode-remap-alist '(c-mode  . c-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode)))
+
+(let ((dir (expand-file-name "undo" user-emacs-directory)))
+  (unless (file-directory-p dir)
+    (make-directory dir t)))
+
 (setq inhibit-startup-message t
       visible-bell t
       c-default-style "linux"
@@ -38,6 +50,8 @@
 
 (use-package auto-package-update
   :config
+  (setq auto-package-update-delete-old-versions t
+        auto-package-update-hide-results t)
   (auto-package-update-maybe))
 
 (use-package undo-tree
@@ -80,9 +94,6 @@
   :config
   (key-chord-define evil-insert-state-map "yy" 'evil-normal-state)
   (key-chord-mode 1))
-
-(use-package sqlite3
-  :defer t)
 
 (use-package org
   :hook
@@ -176,17 +187,17 @@
 (use-package vterm)
 (use-package markdown-mode)
 (use-package cuda-mode)
-(use-package clang-format)
 (use-package pdf-tools)
 
 (use-package format-all
   :commands format-all-mode
   :hook ((prog-mode . (lambda ()
                         (format-all-mode)
-                        (format-all-ensure-formatter)))
-         (c++-mode . (lambda ()
-                       (format-all-mode)
-                       (format-all-ensure-formatter)))))
+                        (format-all-ensure-formatter))))
+  :config
+  (setq format-all-default-formatters
+        '(("C"   clang-format)
+          ("C++" clang-format))))
 
 (use-package company
   :config
@@ -247,6 +258,7 @@
   :config
   (which-key-mode))
 
+(setq lsp-disabled-clients '(ccls))
 (use-package lsp-mode
   :init (setq lsp-keymap-prefix "C-c l")
   :hook ((prog-mode . lsp-deferred)
@@ -255,22 +267,29 @@
   :commands (lsp lsp-deferred)
   :config
   (setq lsp-diagnostics-modeline-scope :project)
+  (setq lsp-diagnostics-provider :flycheck)
   (setq lsp-warn-no-matched-clients nil)
   (setq lsp-enable-suggest-server-download t)
   (setq lsp-auto-install-server t)
-  (setq lsp-idle-delay 0.1)
+  (setq lsp-enable-snippet t
+        lsp-completion-enable-additional-text-edit t
+        lsp-semantic-tokens-enable t
+        lsp-signature-auto-activate t
+        lsp-idle-delay 0.1)
   (setq lsp-completion-provider :capf)
-  (setq lsp-inlay-hint-enable t
-        lsp-inlay-hint-show-parameter-names t
-        lsp-inlay-hint-show-variable-name t
-	lsp-inlay-hint-show-constructor-arguments t)
   (setq lsp-clients-clangd-args
-	'("--background-index"
-	  "--header-insertion=never"
-	  "--header-insertion-decorators=0"
-	  ))
-  (add-to-list 'company-backends 'company-capf)
-  (define-key lsp-mode-map (kbd "TAB") 'company-complete-selection)
+        '("--background-index"
+          "--clang-tidy"
+          "--all-scopes-completion"
+          "--completion-style=detailed"
+          "--function-arg-placeholders"
+          "--header-insertion=iwyu"))
+  (add-hook 'lsp-mode-hook
+    (lambda ()
+      (when (lsp-feature? "textDocument/inlayHint")
+        (lsp-inlay-hints-mode 1))))
+  (with-eval-after-load 'lsp-semgrep
+    (setq lsp-semgrep-languages '()))
   (define-key lsp-mode-map [remap xref-find-apropos] #'helm-lsp-workspace-symbol)
   )
 
@@ -292,21 +311,17 @@
         ([remap switch-to-buffer] . helm-mini))
   :config
   (setq helm-M-x-fuzzy-match t)
-  (setq helm-recentf-fuzzy-match t)
-  (helm-mode 1))
+  (setq helm-recentf-fuzzy-match t))
 
 (use-package helm-lsp
   :after lsp-mode
-  :commands helm-lsp-workspace-symbol
-  :config
-  (setq helm-lsp-sources '(helm-lsp-source-symbol helm-lsp-source-type))
-  :bind (("M-." . helm-lsp-find-definition)
-	 ("M-," . helm-lsp-find-references)))
+  :commands helm-lsp-workspace-symbol)
 
 (use-package projectile
   :config
   (projectile-mode +1)
-  (setq projectile-completion-system 'helm))
+  (setq projectile-completion-system 'helm)
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
 
 (use-package helm-projectile
   :after (helm projectile)
@@ -318,6 +333,10 @@
 (use-package treemacs
   :custom
   (treemacs-space-between-root-nodes nil))
+
+(use-package treesit-auto
+  :config
+  (global-treesit-auto-mode))
 
 (use-package lsp-treemacs
   :commands
@@ -337,32 +356,47 @@
          (prog-mode . flyspell-prog-mode)))
 
 (use-package dap-mode
-  :config
-  (require 'dap-lldb)
-  (require 'dap-gdb-lldb)
-  (dap-auto-configure-mode 1)
-  )
-(use-package dap-mode
   :after lsp-mode
+  :commands (dap-debug dap-breakpoint-toggle)
   :config
   (dap-ui-mode 1)
-  (dap-tooltip-mode 1)
-  (tooltip-mode 1)
-  (require 'dap-ui)
   (dap-ui-controls-mode 1)
+  (dap-tooltip-mode 1)
+  (dap-auto-configure-mode 1)
   (require 'dap-lldb)
+  (require 'dap-cpptools)
   (dap-register-debug-template
-   "C++ LLDB"
+   "C++ :: LLDB (launch)"
    (list :type "lldb"
          :request "launch"
-         :name "LLDB::Run"
-         :gdbpath "lldb"
-         :target nil
-         :cwd nil))
-  (dap-auto-configure-mode 1))
-
+         :name "C++ :: LLDB"
+         :program "${workspaceFolder}/build/<binary>"
+         :cwd "${workspaceFolder}"
+         :args []))
+  (dap-register-debug-template
+   "C++ :: GDB (cppdbg)"
+   (list :type "cppdbg"
+         :request "launch"
+         :name "C++ :: GDB (cppdbg)"
+         :MIMode "gdb"
+         :miDebuggerPath "/usr/bin/gdb"
+         :program "${workspaceFolder}/build/<binary>"
+         :cwd "${workspaceFolder}"
+         :args []))
+  (dap-register-debug-template
+   "C++ :: Attach (cppdbg)"
+   (list :type "cppdbg"
+         :request "attach"
+         :name "C++ :: Attach (cppdbg)"
+         :MIMode "gdb"
+         :miDebuggerPath "/usr/bin/gdb"
+         :processId "enter PID")))
 
 (use-package cmake-mode)
+(use-package modern-cpp-font-lock
+  :hook (c++-mode . modern-cpp-font-lock-mode))
+(use-package cmake-font-lock
+  :hook (cmake-mode . cmake-font-lock-activate))
 
 (use-package cmake-ide
   :config
@@ -370,19 +404,16 @@
 
 (use-package avy)
 
-(use-package helm-xref)
+(use-package helm-xref
+  :after helm
+  :init
+  (setq xref-show-xrefs-function        #'helm-xref-show-xrefs
+        xref-show-definitions-function  #'helm-xref-show-defs))
 
 (use-package lsp-pyright
   :after lsp-mode
   :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp)))
   :config (setq lsp-pyright-venv-path "/opt/emacs/"))
-
-(use-package tree-sitter
-  :config
-  (setq treesit-language-source-alist
-	'((c   "https://github.com/tree-sitter/tree-sitter-c")
-	  (cpp "https://github.com/tree-sitter/tree-sitter-cpp")))
-  (global-tree-sitter-mode 1))
 
 (use-package texfrag
   :init
@@ -414,9 +445,3 @@
   (if texfrag-auto-mode
       (add-hook 'after-save-hook 'texfrag-auto--after-save nil 'local)
     (remove-hook 'after-save-hook 'texfrag-auto--after-save 'local)))
-
-(when (fboundp 'treesit-install-language-grammar)
-  (unless (treesit-language-available-p 'c)
-    (treesit-install-language-grammar 'c))
-  (unless (treesit-language-available-p 'cpp)
-    (treesit-install-language-grammar 'cpp)))
