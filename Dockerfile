@@ -145,6 +145,10 @@ RUN PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH &&\
     make -j "$(nproc)" &&\
     make install
 
+RUN emacs -Q --batch \
+    --eval "(setq treesit-language-source-alist '((c   \"https://github.com/tree-sitter/tree-sitter-c\" \"v0.23.4\") (cpp \"https://github.com/tree-sitter/tree-sitter-cpp\" \"v0.23.4\")))" \
+    --eval "(mapc #'treesit-install-language-grammar '(c cpp))"
+
 RUN userdel "$(id -nu "$DUID")" || true
 RUN groupadd -g $DGID $DGROUP || true;
 RUN useradd -r -m -d /workspace -s /bin/bash -g "$DGID" -G sudo -u "$DUID" "$DUSER";
