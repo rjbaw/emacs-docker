@@ -112,6 +112,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     clangd \
     clang-tidy \
     tree-sitter-cli \
+    cmake-format \
     lldb && rm -rf /var/lib/apt/lists/*
 
 RUN locale-gen en_US.UTF-8

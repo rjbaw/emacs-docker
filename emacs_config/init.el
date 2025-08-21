@@ -24,6 +24,7 @@
       visible-bell t
       c-default-style "linux"
       c-basic-offset 4
+      c-ts-mode-indent-offset 4
       native-comp-async-report-warnings-errors nil
       default-frame-alist '((font . "DM Mono"))
       custom-file "~/.emacs.d/custom-file.el")
@@ -202,7 +203,7 @@
 (use-package company
   :config
   (setq company-idle-delay 0.0)
-  (setq company-minimum-prefix-length 1)
+  (setq company-minimum-prefix-length 0)
   (setq company-selection-wrap-around t)
   (add-to-list 'company-backends 'company-capf)
   (define-key company-mode-map [remap indent-for-tab-command]
@@ -247,6 +248,16 @@
 (use-package docker-compose-mode)
 (use-package rust-mode)
 
+(use-package pyenv-mode
+  :after python
+  :commands (pyenv-mode pyenv-mode-set pyenv-mode-unset)
+  :init
+  (setenv "PYENV_ROOT" (or (getenv "PYENV_ROOT") (expand-file-name "~/.pyenv")))
+  (add-to-list 'exec-path (expand-file-name "shims" (getenv "PYENV_ROOT")))
+  (add-to-list 'exec-path (expand-file-name "bin" (getenv "PYENV_ROOT")))
+  :config
+  (pyenv-mode))
+
 (use-package ob-async
   :config
   (setq ob-async-no-async-languages-alist '("jupyter-python" "jupyter-julia"))
@@ -275,23 +286,24 @@
         lsp-completion-enable-additional-text-edit t
         lsp-semantic-tokens-enable t
         lsp-signature-auto-activate t
-        lsp-idle-delay 0.1)
+        lsp-idle-delay 0.0)
   (setq lsp-completion-provider :capf)
   (setq lsp-clients-clangd-args
-        '("--background-index"
-          "--clang-tidy"
-          "--all-scopes-completion"
-          "--completion-style=detailed"
-          "--function-arg-placeholders"
-          "--header-insertion=iwyu"))
+	'("--background-index"
+	  "--clang-tidy"
+	  "--all-scopes-completion"
+	  "--completion-style=detailed"
+	  "--function-arg-placeholders"
+	  "--header-insertion=iwyu"
+	  "--pch-storage=memory"
+	  "--query-driver=/usr/bin/clang++,/usr/bin/clang,/usr/bin/g++,/usr/bin/gcc,/usr/bin/c++,/usr/bin/cc,/usr/bin/ccache,/usr/bin/sccache,**/bin/clang++*,**/bin/clang*,**/bin/g++*,**/bin/gcc*,**/bin/c++*,**/bin/cc*,**/sccache,**/ccache"))
   (add-hook 'lsp-mode-hook
-    (lambda ()
-      (when (lsp-feature? "textDocument/inlayHint")
-        (lsp-inlay-hints-mode 1))))
+	    (lambda ()
+	      (when (lsp-feature? "textDocument/inlayHint")
+		(lsp-inlay-hints-mode 1))))
   (with-eval-after-load 'lsp-semgrep
     (setq lsp-semgrep-languages '()))
-  (define-key lsp-mode-map [remap xref-find-apropos] #'helm-lsp-workspace-symbol)
-  )
+  (define-key lsp-mode-map [remap xref-find-apropos] #'helm-lsp-workspace-symbol))
 
 (use-package lsp-ui
   :commands lsp-ui-mode
