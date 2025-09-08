@@ -1,4 +1,4 @@
-name: Docker Images (CPU & GPU)
+name: Build Docker Images
 
 on:
   push:

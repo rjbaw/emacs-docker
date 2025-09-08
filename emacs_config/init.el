@@ -269,7 +269,6 @@
   :config
   (which-key-mode))
 
-(setq lsp-disabled-clients '(ccls))
 (use-package lsp-mode
   :init (setq lsp-keymap-prefix "C-c l")
   :hook ((prog-mode . lsp-deferred)
@@ -288,6 +287,7 @@
         lsp-signature-auto-activate t
         lsp-idle-delay 0.0)
   (setq lsp-completion-provider :capf)
+  (setq lsp-disabled-clients (append lsp-disabled-clients '(ccls)))
   (setq lsp-clients-clangd-args
 	'("--background-index"
 	  "--clang-tidy"
@@ -412,14 +412,6 @@
          :processId "enter PID")))
 
 (use-package cmake-mode)
-(use-package modern-cpp-font-lock
-  :hook (c++-mode . modern-cpp-font-lock-mode))
-(use-package cmake-font-lock
-  :hook (cmake-mode . cmake-font-lock-activate))
-
-(use-package cmake-ide
-  :config
-  (cmake-ide-setup))
 
 (use-package avy)
 
@@ -431,8 +423,7 @@
 
 (use-package lsp-pyright
   :after lsp-mode
-  :hook (python-mode . (lambda () (require 'lsp-pyright) (lsp)))
-  :config (setq lsp-pyright-venv-path "/opt/emacs/"))
+  :demand t)
 
 (use-package texfrag
   :init

@@ -119,6 +119,7 @@ RUN locale-gen en_US.UTF-8
 
 RUN npm install -g n && \
     n stable && \
+    npm install -g pyright && \
     npm cache clean --force && \
     n prune || true
 
@@ -217,6 +218,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
     rustup component add rust-analyzer
 RUN /workspace/.cargo/bin/cargo install texlab && \
     rm -rf /workspace/.cargo/registry /workspace/.cargo/git || true
+RUN curl -LsSf https://astral.sh/ruff/install.sh | sh
 
 RUN printf "%s\n" \
     "(advice-add 'yes-or-no-p :override (lambda (&rest _) t))" \
