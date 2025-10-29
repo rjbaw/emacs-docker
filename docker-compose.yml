@@ -23,13 +23,7 @@ services:
       - $HOME/.Xauthority:/workspace/.Xauthority:rw
       - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro 
       - $HOME/:/workspace/home 
-    ports:
-      - 8888:8888
+    ulimits:
+      core: 0
     tty: true
-    #network_mode: "host"
-    # https://github.com/tailscale/tailscale/issues/3877
-    networks:                                
-      default:                               
-        driver_opts:                         
-          com.docker.network.driver.mtu: 1280
-    #restart: unless-stopped
+    network_mode: "host"

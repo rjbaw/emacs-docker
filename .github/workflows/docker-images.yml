@@ -22,7 +22,7 @@ env:
 jobs:
   build-and-push:
     name: Build and Push (${{ matrix.flavor }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.labels }}
     strategy:
       fail-fast: false
       matrix:
@@ -31,10 +31,12 @@ jobs:
             image_name: emacs-latex
             base_image: ubuntu:24.04
             with_gpu: "false"
-          #- flavor: gpu
-          #  image_name: emacs-latex-gpu
-          #  base_image: nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04
-          #  with_gpu: "true"
+            labels: [x64, linux]
+          - flavor: gpu
+            image_name: emacs-latex-gpu
+            base_image: nvidia/cuda:13.0.1-cudnn-devel-ubuntu24.04
+            with_gpu: "true"
+            labels: [x64, linux]
 
     steps:
       - name: Checkout
@@ -69,4 +71,4 @@ jobs:
           if [ "${{ matrix.with_gpu }}" = "true" ]; then
             GPU_FLAG="-g"
           fi
-          ./run.sh -b -p ${GPU_FLAG}
+          ./run.sh -b -p -r ${GPU_FLAG}

@@ -127,10 +127,9 @@ COPY fonts /tmp/fonts/
 RUN cp /tmp/fonts/* /usr/local/share/fonts/
 RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml
 
-RUN PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH &&\
-    cd /tmp && \
-    curl -L https://ftp.gnu.org/gnu/emacs/emacs-30.1.tar.gz -so emacs.tar.gz &&\
-    tar xf emacs.tar.gz &&\
+RUN cd /tmp && \
+    curl -L https://ftpmirror.gnu.org/emacs/emacs-30.2.tar.xz -so emacs.tar.xz &&\
+    tar xf emacs.tar.xz &&\
     cd emacs* &&\
     ./configure \
     -C \
@@ -174,8 +173,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN curl https://pyenv.run | bash
 
-RUN echo "export JULIA_NUM_THREADS=$(nproc)" >> $HOME/.bashrc &&\
-    echo "export TERM=xterm-256color" >> $HOME/.bashrc &&\
+RUN echo "export TERM=xterm-256color" >> $HOME/.bashrc &&\
     echo "alias em='emacsclient -c -n -a \"\"'" >> $HOME/.bashrc &&\
     echo "alias et='emacsclient -t -nw -a \"\"'" >> $HOME/.bashrc &&\
     echo "alias jb='jupyter-lab --ip=0.0.0.0 --NotebookApp.allow_credentials=True'" >> $HOME/.bashrc &&\
@@ -197,7 +195,7 @@ RUN export PYENV_ROOT="$HOME/.pyenv" && \
     export PYENV_VERSION=base && \
     pyenv activate base && \
     if [ "$WITH_GPU" = "true" ]; then \
-      pip install --no-cache-dir --force-reinstall torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128; \
+      pip install --no-cache-dir --force-reinstall torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu130; \
     else \
       pip install --no-cache-dir --force-reinstall torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu; \
     fi && \
@@ -207,11 +205,6 @@ RUN export PYENV_ROOT="$HOME/.pyenv" && \
     rm -rf "$PYENV_ROOT/cache"/* || true
 
 ENV PYENV_VERSION=base
-
-RUN curl -fsSL https://install.julialang.org | sh -s -- -y && \
-    . /workspace/.bashrc &&\
-    . /workspace/.profile &&\
-    julia -e 'import Pkg; Pkg.add("IJulia"); Pkg.gc()'
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
     . /workspace/.cargo/env && \
@@ -233,6 +226,7 @@ RUN printf "%s\n" \
     > /tmp/ci-run.el
 RUN emacs --batch -Q -l /tmp/ci.el -l /tmp/ci-run.el && \
     emacs --daemon && emacsclient -e '(kill-emacs)'
+
 RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
     cd /workspace/.emacs.d/elpa/zmq*/src && \
     ./configure && \

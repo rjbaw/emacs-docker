@@ -23,8 +23,8 @@ services:
       - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro 
       - $HOME/:/workspace/home 
       - ${EXT_VOL:-/dev/null}:/workspace/ext
-    #ports:
-    #  - 8888:8888
+    ulimits:
+      core: 0
     tty: true
     deploy:
       resources:
@@ -34,9 +34,3 @@ services:
               count: all
               capabilities: [gpu]
     network_mode: "host"
-    # https://github.com/tailscale/tailscale/issues/3877
-    #networks:                                
-    #  default:                               
-    #    driver_opts:                         
-    #      com.docker.network.driver.mtu: 1280
-    #restart: unless-stopped

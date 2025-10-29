@@ -40,6 +40,8 @@
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
 (add-to-list 'package-archives
+             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(add-to-list 'package-archives
              '("gnu" . "https://elpa.gnu.org/packages/") t)
 
 (unless (package-installed-p 'use-package)
@@ -270,6 +272,7 @@
   (which-key-mode))
 
 (use-package lsp-mode
+  :pin melpa-stable
   :init (setq lsp-keymap-prefix "C-c l")
   :hook ((prog-mode . lsp-deferred)
          (lsp-mode . lsp-enable-which-key-integration)
@@ -375,6 +378,7 @@
          (prog-mode . flyspell-prog-mode)))
 
 (use-package dap-mode
+  :pin melpa-stable
   :after lsp-mode
   :commands (dap-debug dap-breakpoint-toggle)
   :config
