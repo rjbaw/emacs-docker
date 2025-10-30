@@ -212,6 +212,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
 RUN /workspace/.cargo/bin/cargo install texlab && \
     rm -rf /workspace/.cargo/registry /workspace/.cargo/git || true
 RUN curl -LsSf https://astral.sh/ruff/install.sh | sh
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 RUN printf "%s\n" \
     "(advice-add 'yes-or-no-p :override (lambda (&rest _) t))" \

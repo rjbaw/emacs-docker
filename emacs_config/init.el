@@ -345,12 +345,6 @@
 
 (use-package hydra)
 
-(setq treesit-language-source-alist
-      '((c   "https://github.com/tree-sitter/tree-sitter-c"   "v0.23.4")
-        (cpp "https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4")))
-(add-to-list 'treesit-extra-load-path
-             (expand-file-name "tree-sitter" user-emacs-directory))
-
 (use-package treemacs
   :custom
   (treemacs-space-between-root-nodes nil))
@@ -358,6 +352,7 @@
 (use-package treesit-auto
   :custom (treesit-auto-install t)
   :config
+  (treesit-auto-add-to-auto-mode-alist)
   (global-treesit-auto-mode))
 
 (use-package lsp-treemacs
