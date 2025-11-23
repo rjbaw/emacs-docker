@@ -100,7 +100,7 @@ else
 
     case "$OSTYPE" in
         linux-gnu*)
-            xhost +localhost
+            xhost +SI:localuser:$(id -un)
             DISPLAY=$DISPLAY
             ;;
         darwin*)

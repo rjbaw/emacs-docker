@@ -2,6 +2,7 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
+(electric-pair-mode t)
 
 (global-hl-line-mode 1)
 (global-display-line-numbers-mode 1)
@@ -200,7 +201,8 @@
   :config
   (setq format-all-default-formatters
         '(("C"   clang-format)
-          ("C++" clang-format))))
+          ("C++" clang-format)
+	  ("Python" ruff))))
 
 (use-package company
   :config
@@ -215,10 +217,6 @@
 (use-package company-math
   :config
   (add-to-list 'company-backends 'company-math-symbols-unicode))
-
-;; (use-package smartparens
-;;   :config (smartparens-global-mode t))
-;; (electric-pair-mode t)
 
 (use-package yasnippet
   :config
