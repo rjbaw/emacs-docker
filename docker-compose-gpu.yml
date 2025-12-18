@@ -13,6 +13,8 @@ services:
     environment:
       - DISPLAY=$DISPLAY
       - QT_X11_NO_MITSHM=1
+      - WAYLAND_DISPLAY=$WAYLAND_DISPLAY
+      - XDG_RUNTIME_DIR=/tmp
     volumes:
       - /dev/shm:/dev/shm 
       - /etc/localtime:/etc/localtime:ro 
@@ -22,6 +24,8 @@ services:
 
       - /tmp/.X11-unix:/tmp/.X11-unix:rw 
       - $HOME/.Xauthority:/workspace/.Xauthority:rw
+      - $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/tmp/$WAYLAND_DISPLAY
+
       - $HOME/:/workspace/home 
       - ${EXT_VOL:-/dev/null}:/workspace/ext
     ulimits:

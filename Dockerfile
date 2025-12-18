@@ -45,6 +45,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     curl \
     cmake \
+    ninja-build \
     dvipng \
     texlive-science \
     texlive-latex-extra \
